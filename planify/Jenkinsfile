@@ -1,0 +1,28 @@
+// Pipeline de CI do Planify: testes com Maven → imagem Docker.
+pipeline {
+    agent any
+
+    stages {
+        stage('Testes unitários') {
+            steps {
+                dir('planify') {
+                    // O wrapper do Docker garante Java 17 + Maven sem instalar nada no agente
+                    sh 'docker run --rm -v "$PWD":/app -w /app maven:3.9-eclipse-temurin-17 mvn test'
+                }
+            }
+        }
+
+        stage('Build da imagem Docker') {
+            steps {
+                dir('planify') {
+                    sh 'docker build -t planify:latest .'
+                }
+            }
+        }
+    }
+
+    post {
+        success { echo '✅ Planify: pipeline concluído com sucesso!' }
+        failure { echo '❌ Planify: algo falhou — confira os logs acima.' }
+    }
+}

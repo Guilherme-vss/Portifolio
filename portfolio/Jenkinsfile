@@ -1,0 +1,36 @@
+// Pipeline de CI do portfólio: instala dependências, roda os testes
+// e constrói a imagem Docker. Veja TUTORIAL-DOCKER-JENKINS.md na raiz.
+pipeline {
+    agent any
+
+    stages {
+        stage('Instalar dependências') {
+            steps {
+                dir('portfolio') {
+                    sh 'npm ci || npm install'
+                }
+            }
+        }
+
+        stage('Testes unitários') {
+            steps {
+                dir('portfolio') {
+                    sh 'npm test'
+                }
+            }
+        }
+
+        stage('Build da imagem Docker') {
+            steps {
+                dir('portfolio') {
+                    sh 'docker build -t portfolio:latest .'
+                }
+            }
+        }
+    }
+
+    post {
+        success { echo '✅ Portfólio: pipeline concluído com sucesso!' }
+        failure { echo '❌ Portfólio: algo falhou — confira os logs acima.' }
+    }
+}

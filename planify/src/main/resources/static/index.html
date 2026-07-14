@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planify 📊 — organize qualquer planilha em segundos</title>
+  <style>
+    :root {
+      --roxo: #7c3aed; --roxo-claro: #ede9fe; --fundo: #faf9fb; --card: #fff;
+      --texto: #1e1b2e; --borda: #e5e0ee; --cinza: #6b7280; --verde: #059669;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: "Segoe UI", system-ui, sans-serif; background: var(--fundo); color: var(--texto); }
+    header { background: var(--roxo); color: #fff; padding: 1rem 1.2rem; }
+    header p { opacity: 0.85; font-size: 0.85rem; }
+    main { max-width: 900px; margin: 1.2rem auto; padding: 0 1rem; }
+    .card { background: var(--card); border: 1px solid var(--borda); border-radius: 12px; padding: 1.4rem; margin-bottom: 1.2rem; }
+    h2 { font-size: 1.05rem; margin-bottom: 0.8rem; }
+    label { display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 0; font-size: 0.92rem; }
+    input[type="file"], input[type="number"], select { padding: 0.45rem; border: 1px solid var(--borda); border-radius: 8px; font: inherit; }
+    input[type="number"] { width: 90px; }
+    button { margin-top: 0.9rem; padding: 0.6rem 1.4rem; border: none; border-radius: 8px; background: var(--roxo); color: #fff; font-weight: 600; cursor: pointer; }
+    button:hover { filter: brightness(1.1); }
+    button.verde { background: var(--verde); }
+    .metricas { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.8rem; margin-top: 0.6rem; }
+    .metrica { background: var(--roxo-claro); border-radius: 10px; padding: 0.8rem; text-align: center; }
+    .metrica strong { display: block; font-size: 1.4rem; color: var(--roxo); }
+    .metrica span { font-size: 0.78rem; color: var(--cinza); }
+    .tabela-wrap { overflow-x: auto; margin-top: 0.8rem; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+    th, td { border: 1px solid var(--borda); padding: 0.35rem 0.6rem; text-align: left; white-space: nowrap; }
+    th { background: var(--roxo-claro); }
+    .msg { font-size: 0.85rem; color: var(--cinza); margin-top: 0.5rem; min-height: 1em; }
+    .dica { font-size: 0.82rem; color: var(--cinza); }
+    @media (max-width: 600px) { .metricas { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📊 Planify</h1>
+    <p>Envie uma planilha bagunçada, diga o que quer fazer, receba tudo organizado.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>1️⃣ Envie o arquivo e escolha as operações</h2>
+      <input type="file" id="arquivo" accept=".csv,.xlsx" />
+      <p class="dica">Aceita .csv (vírgula ou ponto-e-vírgula) e .xlsx (Excel).</p>
+
+      <label><input type="checkbox" id="op-espacos" checked /> 🧹 Limpar espaços extras nas células</label>
+      <label><input type="checkbox" id="op-vazias" checked /> 🕳️ Remover linhas vazias</label>
+      <label><input type="checkbox" id="op-duplicadas" checked /> 👯 Remover linhas duplicadas</label>
+      <label>
+        <input type="checkbox" id="op-ordenar" /> 🔤 Ordenar pela coluna nº
+        <input type="number" id="col-ordenar" value="0" min="0" />
+        <select id="ordem"><option value="true">crescente</option><option value="false">decrescente</option></select>
+      </label>
+      <label>
+        <input type="checkbox" id="op-cep" /> 📮 Normalizar CEPs da coluna nº
+        <input type="number" id="col-cep" value="0" min="0" />
+        <span class="dica">(adiciona cidade e UF via ViaCEP)</span>
+      </label>
+      <p class="dica">As colunas contam a partir do 0 (primeira coluna = 0).</p>
+
+      <button onclick="organizar()">✨ Organizar planilha</button>
+      <p class="msg" id="msg"></p>
+    </section>
+
+    <section class="card" id="card-resultado" style="display:none">
+      <h2>2️⃣ Resultado</h2>
+      <div class="metricas" id="metricas"></div>
+      <button class="verde" onclick="baixarCsv()">⬇️ Baixar CSV organizado</button>
+      <div class="tabela-wrap"><table id="tabela"></table></div>
+    </section>
+
+    <section class="card">
+      <h2>🗂️ Histórico de processamentos</h2>
+      <div class="tabela-wrap"><table id="tabela-historico"></table></div>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let csvPronto = "";
+
+    async function organizar() {
+      const arquivo = $("arquivo").files[0];
+      if (!arquivo) { $("msg").textContent = "Escolha um arquivo primeiro."; return; }
+
+      const dados = new FormData();
+      dados.append("arquivo", arquivo);
+      dados.append("limparEspacos", $("op-espacos").checked);
+      dados.append("removerVazias", $("op-vazias").checked);
+      dados.append("removerDuplicadas", $("op-duplicadas").checked);
+      dados.append("colunaOrdenacao", $("op-ordenar").checked ? $("col-ordenar").value : -1);
+      dados.append("ordemCrescente", $("ordem").value);
+      dados.append("colunaCep", $("op-cep").checked ? $("col-cep").value : -1);
+
+      $("msg").textContent = "Organizando... (CEPs podem levar alguns segundos)";
+      try {
+        const resposta = await fetch("/api/organizar", { method: "POST", body: dados });
+        const r = await resposta.json();
+        if (!resposta.ok) throw new Error(r.erro || "Erro inesperado");
+
+        csvPronto = r.csv;
+        mostrarMetricas(r.metricas);
+        mostrarTabela(r.linhas);
+        $("card-resultado").style.display = "block";
+        $("msg").textContent = "Pronto! ✅";
+        carregarHistorico();
+      } catch (e) { $("msg").textContent = e.message; }
+    }
+
+    function mostrarMetricas(m) {
+      $("metricas").innerHTML = "";
+      const itens = [
+        [m.linhasAntes, "linhas antes"], [m.linhasDepois, "linhas depois"],
+        [m.vaziasRemovidas, "vazias removidas"], [m.duplicadasRemovidas, "duplicadas removidas"],
+      ];
+      itens.forEach(([valor, rotulo]) => {
+        const div = document.createElement("div");
+        div.className = "metrica";
+        div.innerHTML = `<strong>${valor}</strong><span>${rotulo}</span>`;
+        $("metricas").appendChild(div);
+      });
+    }
+
+    function mostrarTabela(linhas) {
+      const tabela = $("tabela");
+      tabela.innerHTML = "";
+      linhas.slice(0, 50).forEach((linha, i) => {
+        const tr = document.createElement("tr");
+        linha.forEach((celula) => {
+          const td = document.createElement(i === 0 ? "th" : "td");
+          td.textContent = celula;
+          tr.appendChild(td);
+        });
+        tabela.appendChild(tr);
+      });
+      if (linhas.length > 50) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="${linhas[0].length}"><em>... e mais ${linhas.length - 50} linhas (baixe o CSV completo)</em></td>`;
+        tabela.appendChild(tr);
+      }
+    }
+
+    function baixarCsv() {
+      // BOM (﻿) faz o Excel abrir os acentos corretamente
+      const blob = new Blob(["﻿" + csvPronto], { type: "text/csv;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "planilha-organizada.csv";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    async function carregarHistorico() {
+      const historico = await (await fetch("/api/historico")).json();
+      const tabela = $("tabela-historico");
+      tabela.innerHTML = "<tr><th>Arquivo</th><th>Operações</th><th>Antes → Depois</th><th>Quando</th></tr>";
+      historico.forEach((h) => {
+        const tr = document.createElement("tr");
+        const quando = new Date(h.processadoEm).toLocaleString("pt-BR");
+        tr.innerHTML = `<td></td><td></td><td>${h.linhasAntes} → ${h.linhasDepois}</td><td>${quando}</td>`;
+        const [arq, ops] = tr.querySelectorAll("td");
+        arq.textContent = h.nomeArquivo;
+        ops.textContent = h.operacoes;
+        tabela.appendChild(tr);
+      });
+      if (historico.length === 0) {
+        tabela.innerHTML += "<tr><td colspan='4'><em>Nada processado ainda.</em></td></tr>";
+      }
+    }
+
+    carregarHistorico();
+  </script>
+</body>
+</html>

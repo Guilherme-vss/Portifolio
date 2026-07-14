@@ -1,0 +1,29 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: metagrana-mongo
+    volumes:
+      - metagrana-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    container_name: metagrana-app
+    environment:
+      MONGO_URL: mongodb://mongo:27017
+      MONGO_DB: metagrana
+      # Opcional: coloque sua chave para dicas com IA
+      ANTHROPIC_API_KEY: ""
+    ports:
+      - "8000:8000"   # acesse em http://localhost:8000
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  metagrana-data:

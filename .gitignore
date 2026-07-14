@@ -1,0 +1,18 @@
+# Dependências e builds
+node_modules/
+dist/
+target/
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Segredos e configurações locais (nunca suba o .env!)
+.env
+
+# Arquivos de sistema e IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml

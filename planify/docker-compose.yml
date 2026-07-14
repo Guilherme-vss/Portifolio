@@ -1,0 +1,33 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: planify-mysql
+    environment:
+      MYSQL_DATABASE: planify
+      MYSQL_USER: planify
+      MYSQL_PASSWORD: planify
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - planify-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uplanify", "-pplanify"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    container_name: planify-app
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/planify
+      DB_USER: planify
+      DB_PASS: planify
+    ports:
+      - "8081:8080"   # acesse em http://localhost:8081
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  planify-data:

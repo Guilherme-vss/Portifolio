@@ -1,0 +1,42 @@
+// Pipeline de CI do MetaGrana: ambiente Python → testes → imagem Docker.
+pipeline {
+    agent any
+
+    stages {
+        stage('Preparar ambiente Python') {
+            steps {
+                dir('metagrana') {
+                    sh '''
+                        python3 -m venv .venv
+                        . .venv/bin/activate
+                        pip install -r requirements.txt
+                    '''
+                }
+            }
+        }
+
+        stage('Testes unitários') {
+            steps {
+                dir('metagrana') {
+                    sh '''
+                        . .venv/bin/activate
+                        pytest -v
+                    '''
+                }
+            }
+        }
+
+        stage('Build da imagem Docker') {
+            steps {
+                dir('metagrana') {
+                    sh 'docker build -t metagrana:latest .'
+                }
+            }
+        }
+    }
+
+    post {
+        success { echo '✅ MetaGrana: pipeline concluído com sucesso!' }
+        failure { echo '❌ MetaGrana: algo falhou — confira os logs acima.' }
+    }
+}
