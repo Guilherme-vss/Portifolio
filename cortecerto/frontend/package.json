@@ -1,0 +1,19 @@
+{
+  "name": "cortecerto-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interface do CorteCerto — Svelte 4 + Vite",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^3.1.1",
+    "svelte": "^4.2.18",
+    "vite": "^5.3.1",
+    "vitest": "^1.6.0"
+  }
+}

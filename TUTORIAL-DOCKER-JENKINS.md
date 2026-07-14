@@ -66,6 +66,7 @@ Portas de cada projeto depois do `up`:
 | rotakids | http://localhost:3000 |
 | metagrana | http://localhost:8000 (API docs em /docs) |
 | planify | http://localhost:8081 |
+| cortecerto | http://localhost:5080 |
 
 ---
 

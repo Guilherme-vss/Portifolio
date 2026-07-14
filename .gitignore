@@ -1,11 +1,23 @@
-# Dependências e builds
+# Dependências e builds — JavaScript/TypeScript
 node_modules/
 dist/
+.angular/
+out-tsc/
+
+# Java (Maven)
 target/
+
+# Python
 .venv/
 venv/
 __pycache__/
 *.pyc
+.pytest_cache/
+
+# .NET
+bin/
+obj/
+*.user
 
 # Segredos e configurações locais (nunca suba o .env!)
 .env

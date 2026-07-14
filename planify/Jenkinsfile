@@ -12,6 +12,16 @@ pipeline {
             }
         }
 
+        stage('Front-end (Angular): testes e build') {
+            steps {
+                dir('planify/frontend') {
+                    sh 'npm ci || npm install'
+                    sh 'npm test'
+                    sh 'npm run build'
+                }
+            }
+        }
+
         stage('Build da imagem Docker') {
             steps {
                 dir('planify') {

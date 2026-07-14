@@ -26,6 +26,7 @@ uma boa oportunidade.
 
 | Camada | Tecnologia | Por quê |
 |--------|-----------|---------|
+| Front-end | **Vue 3 + Vite** (pasta `frontend/`) | Composition API, reatividade elegante — o 2º framework mais usado |
 | Back-end | **Python + FastAPI** | Validação automática, docs interativas em `/docs`, async nativo |
 | Banco | **MongoDB** | Metas e gastos são documentos flexíveis — caso perfeito para NoSQL |
 | Preços | **API do Mercado Livre** | Pública, sem chave, dados reais do Brasil |
@@ -49,13 +50,19 @@ docker compose up -d --build
 python -m venv .venv
 .venv\Scripts\activate        # Windows  (use "source .venv/bin/activate" no Linux/Mac)
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload   # API em http://localhost:8000
+
+# em outro terminal — o front Vue com recarga automática:
+cd frontend
+npm install
+npm run dev                     # http://localhost:5173 (proxy para a API)
 ```
 
 ## 🧪 Testes
 
 ```bash
-pytest -v
+pytest -v                # back-end: finanças + Mercado Livre — 29 testes
+cd frontend && npm test  # front-end: formatação, validação, variação de preço — 8 testes
 ```
 Os testes cobrem a matemática financeira (resumo por categoria, progresso de
 meta, quanto poupar por mês, saúde financeira, variação de preço) e a
@@ -90,7 +97,7 @@ metagrana/
 │       ├── financas.py          # matemática financeira (100% testada)
 │       ├── mercadolivre.py      # busca de menores preços
 │       └── ia.py                # dicas com Claude + fallback por regras
-├── static/index.html            # painel responsivo
+├── frontend/                    # Vue 3 + Vite (Resumo, Gastos, Metas, Dicas)
 ├── tests/                       # pytest
 ├── Dockerfile / docker-compose.yml
 └── Jenkinsfile                  # CI: deps → testes → imagem

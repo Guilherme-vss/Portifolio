@@ -4,6 +4,7 @@ Gerenciador de gastos mensais com metas de compra: o usuário registra
 gastos, define metas (com marca e modelo), e o sistema busca DIARIAMENTE
 os menores preços no Mercado Livre e gera dicas financeiras (IA ou regras).
 """
+import os
 from datetime import date, datetime
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -222,5 +223,7 @@ def iniciar_agendador():
         agendador.start()
 
 
-# O painel (front-end) é servido pela própria API
-app.mount("/", StaticFiles(directory="static", html=True), name="painel")
+# O painel (front-end Vue compilado) é servido pela própria API.
+# Em desenvolvimento a pasta pode não existir — use `npm run dev` em frontend/.
+if os.path.isdir("static"):
+    app.mount("/", StaticFiles(directory="static", html=True), name="painel")

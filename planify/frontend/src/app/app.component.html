@@ -1,0 +1,110 @@
+<header class="topo">
+  <img src="favicon.svg" alt="" />
+  <div>
+    <h1>Planify</h1>
+    <p>Envie uma planilha bagunçada, diga o que quer fazer, receba tudo organizado.</p>
+  </div>
+</header>
+
+<main class="conteudo">
+  <!-- 1. Upload + opções -->
+  <section class="card">
+    <h2>1️⃣ Envie o arquivo e escolha as operações</h2>
+    <input type="file" accept=".csv,.xlsx" (change)="aoEscolherArquivo($event)" />
+    <p class="dica">Aceita .csv (vírgula ou ponto-e-vírgula) e .xlsx (Excel).</p>
+
+    <label class="opcao">
+      <input type="checkbox" [(ngModel)]="opcoes.limparEspacos" />
+      🧹 Limpar espaços extras nas células
+    </label>
+    <label class="opcao">
+      <input type="checkbox" [(ngModel)]="opcoes.removerVazias" />
+      🕳️ Remover linhas vazias
+    </label>
+    <label class="opcao">
+      <input type="checkbox" [(ngModel)]="opcoes.removerDuplicadas" />
+      👯 Remover linhas duplicadas
+    </label>
+    <label class="opcao">
+      <input type="checkbox" [(ngModel)]="opcoes.ordenar" />
+      🔤 Ordenar pela coluna nº
+      <input type="number" min="0" [(ngModel)]="opcoes.colunaOrdenacao" [disabled]="!opcoes.ordenar" />
+      <select [(ngModel)]="opcoes.ordemCrescente" [disabled]="!opcoes.ordenar">
+        <option [ngValue]="true">crescente</option>
+        <option [ngValue]="false">decrescente</option>
+      </select>
+    </label>
+    <label class="opcao">
+      <input type="checkbox" [(ngModel)]="opcoes.normalizarCep" />
+      📮 Normalizar CEPs da coluna nº
+      <input type="number" min="0" [(ngModel)]="opcoes.colunaCep" [disabled]="!opcoes.normalizarCep" />
+      <span class="dica">(adiciona cidade e UF via ViaCEP)</span>
+    </label>
+    <p class="dica">As colunas contam a partir do 0 (primeira coluna = 0).</p>
+
+    <button (click)="organizar()" [disabled]="processando">
+      {{ processando ? "Organizando..." : "✨ Organizar planilha" }}
+    </button>
+    <p class="msg" [class.erro]="erro">{{ msg }}</p>
+  </section>
+
+  <!-- 2. Resultado -->
+  <section class="card" *ngIf="resultado">
+    <h2>2️⃣ Resultado</h2>
+    <div class="metricas">
+      <div class="metrica">
+        <strong>{{ resultado.metricas.linhasAntes }}</strong><span>linhas antes</span>
+      </div>
+      <div class="metrica">
+        <strong>{{ resultado.metricas.linhasDepois }}</strong><span>linhas depois</span>
+      </div>
+      <div class="metrica">
+        <strong>{{ resultado.metricas.vaziasRemovidas }}</strong><span>vazias removidas</span>
+      </div>
+      <div class="metrica">
+        <strong>{{ resultado.metricas.duplicadasRemovidas }}</strong><span>duplicadas removidas</span>
+      </div>
+      <div class="metrica">
+        <strong>{{ percentualMantido(resultado.metricas.linhasAntes, resultado.metricas.linhasDepois) }}%</strong>
+        <span>dos dados mantidos</span>
+      </div>
+    </div>
+
+    <button class="verde" (click)="baixarCsv()">⬇️ Baixar CSV organizado</button>
+
+    <div class="tabela-wrap">
+      <table>
+        <tr *ngFor="let linha of resultado.linhas.slice(0, 50); let primeira = first">
+          <ng-container *ngIf="primeira">
+            <th *ngFor="let celula of linha">{{ celula }}</th>
+          </ng-container>
+          <ng-container *ngIf="!primeira">
+            <td *ngFor="let celula of linha">{{ celula }}</td>
+          </ng-container>
+        </tr>
+      </table>
+    </div>
+    <p class="dica" *ngIf="resultado.linhas.length > 50">
+      Mostrando as 50 primeiras de {{ resultado.linhas.length }} linhas — baixe o CSV completo.
+    </p>
+  </section>
+
+  <!-- 3. Histórico -->
+  <section class="card">
+    <h2>🗂️ Histórico de processamentos</h2>
+    <div class="tabela-wrap" *ngIf="historico.length > 0; else vazio">
+      <table>
+        <tr>
+          <th>Arquivo</th><th>Operações</th><th>Antes → Depois</th><th>Quando</th>
+        </tr>
+        <tr *ngFor="let item of historico">
+          <td>{{ item.nomeArquivo }}</td>
+          <td>{{ item.operacoes }}</td>
+          <td>{{ item.linhasAntes }} → {{ item.linhasDepois }}</td>
+          <td>{{ formatarData(item.processadoEm) }}</td>
+        </tr>
+      </table>
+    </div>
+    <ng-template #vazio><em class="dica">Nada processado ainda.</em></ng-template>
+  </section>
+</main>

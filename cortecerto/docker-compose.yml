@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: cortecerto-db
+    environment:
+      POSTGRES_USER: cortecerto
+      POSTGRES_PASSWORD: cortecerto
+      POSTGRES_DB: cortecerto
+    volumes:
+      - cortecerto-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cortecerto"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  motor:
+    build: ./motor-python
+    container_name: cortecerto-motor
+    # porta interna 8001 — só a API .NET conversa com ele
+
+  api:
+    build:
+      context: .
+      dockerfile: api-dotnet/Dockerfile
+    container_name: cortecerto-api
+    environment:
+      ConnectionStrings__Default: "Host=db;Port=5432;Database=cortecerto;Username=cortecerto;Password=cortecerto"
+      MOTOR_URL: "http://motor:8001"
+    ports:
+      - "5080:8080"   # acesse em http://localhost:5080
+    depends_on:
+      db:
+        condition: service_healthy
+      motor:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  cortecerto-data:

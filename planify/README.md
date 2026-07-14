@@ -17,85 +17,83 @@ Você envia um **CSV** (vírgula ou ponto-e-vírgula) ou **XLSX** (Excel) e esco
 - 📮 **Normalizar CEPs** — padroniza para `00000-000` e **enriquece** a planilha
   com colunas de cidade e UF preenchidas automaticamente pela API do **ViaCEP**
 
-No final: prévia dos dados na tela, **download do CSV organizado** (com BOM,
-para o Excel abrir os acentos direitinho) e as métricas de antes/depois.
-Cada processamento fica registrado no **histórico** (MySQL).
+No final: métricas do antes/depois, prévia dos dados, **download do CSV
+organizado** (com BOM, para o Excel abrir os acentos) e **histórico** no MySQL.
+
+## 🏛️ Arquitetura: DDD em camadas (Maven)
+
+O back-end segue **Domain-Driven Design** com **DTOs** nas bordas — a dupla
+clássica do mercado corporativo Java:
+
+```
+src/main/java/com/planify/
+├── domain/                      ← o CORAÇÃO: regras puras, sem framework
+│   ├── planilha/
+│   │   ├── Planilha.java        ← agregado raiz IMUTÁVEL (cada operação → nova planilha)
+│   │   └── Cep.java             ← Objeto de Valor: um Cep só existe se for válido
+│   └── historico/Processamento.java  ← entidade do histórico
+├── application/                 ← casos de uso + DTOs (orquestra, não decide)
+│   ├── OrganizarPlanilhaUseCase.java
+│   ├── dto/                     ← OpcoesOrganizacaoDTO, MetricasDTO, OrganizacaoResponseDTO...
+│   └── portas/BuscadorDeEndereco.java  ← interface (inversão de dependência)
+├── infrastructure/              ← o mundo externo
+│   ├── arquivo/LeitorDeArquivos.java   ← CSV/XLSX → Planilha (Apache POI)
+│   ├── viacep/ViaCepClient.java        ← implementa a porta de endereços
+│   └── persistencia/ProcessamentoRepository.java  ← Spring Data
+└── interfaces/rest/PlanilhaController.java  ← borda HTTP: só traduz DTO ↔ caso de uso
+```
+
+**As regras da casa:**
+- O **domínio não conhece** HTTP, banco nem APIs externas — é testável puro.
+- A **entidade JPA nunca sai** pela borda HTTP: quem viaja é o `ProcessamentoDTO`.
+- O caso de uso depende da **porta** `BuscadorDeEndereco`; o `ViaCepClient` é
+  só um adaptador — trocar de fornecedor de CEP não toca no núcleo.
 
 ## 🛠️ Stack
 
 | Camada | Tecnologia | Por quê |
 |--------|-----------|---------|
-| Back-end | **Java 17 + Spring Boot 3** | A dupla mais pedida do mercado corporativo brasileiro |
-| Banco | **MySQL** | Histórico de processamentos com JPA/Hibernate |
-| Planilhas | Apache POI | O padrão do ecossistema Java para .xlsx |
-| Enriquecimento | **API ViaCEP** | Pública, sem chave, dados oficiais de CEP |
-| Testes | JUnit 5 | Todas as operações de organização testadas |
+| Front-end | **Angular 17** (pasta `frontend/`) | A dupla clássica do corporativo: Spring + Angular |
+| Back-end | **Java 17 + Spring Boot 3 (Maven)** | DDD em camadas com DTOs |
+| Banco | **MySQL** | histórico de processamentos via JPA |
+| Planilhas | Apache POI | o padrão do ecossistema Java para .xlsx |
+| Enriquecimento | **API ViaCEP** | pública, sem chave, dados oficiais |
+| Testes | JUnit 5 + Mockito (back) / Vitest (front) | domínio, caso de uso e utilitários |
 
 ## 🚀 Como rodar
 
-### Com Docker (recomendado — não precisa de Java nem Maven instalados!)
+### Com Docker (recomendado — não precisa de Java, Maven nem Node!)
 ```bash
 docker compose up -d --build
 # acesse http://localhost:8081
 ```
-O primeiro build demora alguns minutos (o Maven baixa as dependências dentro
-do container). Os seguintes são rápidos, graças ao cache.
 
-### Manualmente (precisa de Java 17 + Maven)
+### Manualmente (desenvolvimento)
 ```bash
 # suba um MySQL local com banco/usuário "planify" (ou use o do compose)
-mvn spring-boot:run
-# acesse http://localhost:8080
+mvn spring-boot:run                  # API em http://localhost:8080
+
+# em outro terminal — o front Angular com recarga automática:
+cd frontend
+npm install
+npm start                            # http://localhost:4200 (proxy para a API)
 ```
 
 ## 🧪 Testes
 
 ```bash
-mvn test
-# ou, sem Maven instalado:
-docker run --rm -v "%cd%":/app -w /app maven:3.9-eclipse-temurin-17 mvn test
+mvn test                 # domínio + caso de uso + leitor — 20 testes
+cd frontend && npm test  # utilitários do front — 7 testes
 ```
-Os testes cobrem leitura de CSV (ambos os separadores), remoção de vazias e
-duplicadas, limpeza de espaços, ordenação com cabeçalho preservado, ordenação
-numérica no formato brasileiro e a normalização de CEPs.
 
 ## 🔌 API
 
 | Método | Rota | O que faz |
 |--------|------|-----------|
-| POST | `/api/organizar` | multipart: `arquivo` + flags das operações → dados organizados + CSV + métricas |
-| GET | `/api/historico` | últimos 20 processamentos |
+| POST | `/api/organizar` | multipart: `arquivo` + flags → dados + CSV + métricas |
+| GET | `/api/historico` | últimos 20 processamentos (como DTOs) |
 | GET | `/api/saude` | health check |
 
 Parâmetros do `/api/organizar`: `limparEspacos`, `removerVazias`,
 `removerDuplicadas` (booleanos, padrão `true`), `colunaOrdenacao` e `colunaCep`
-(índice da coluna a partir de 0; `-1` desliga), `ordemCrescente`.
-
-## 📁 Estrutura
-
-```
-planify/
-├── src/main/java/com/planify/
-│   ├── PlanifyApplication.java
-│   ├── controller/PlanilhaController.java    # API REST
-│   ├── service/
-│   │   ├── OrganizadorService.java           # operações (100% testadas)
-│   │   └── ViaCepService.java                # normalização + enriquecimento
-│   ├── model/Processamento.java              # entidade do histórico
-│   └── repository/ProcessamentoRepository.java
-├── src/main/resources/
-│   ├── application.properties
-│   └── static/index.html                     # interface responsiva
-├── src/test/java/...                         # JUnit 5
-├── Dockerfile                                # build em 2 etapas
-├── docker-compose.yml                        # app + MySQL
-└── Jenkinsfile
-```
-
-## 🧠 Decisões de projeto
-
-- As operações trabalham sobre `List<List<String>>` — uma estrutura simples que
-  torna o serviço **testável sem arquivo, banco ou rede**.
-- Se o ViaCEP estiver fora do ar, o processamento **continua** — as colunas de
-  cidade/UF só ficam vazias (degradação graciosa).
-- O CSV de saída usa ponto-e-vírgula, o padrão que o Excel brasileiro espera.
+(índice a partir de 0; `-1` desliga), `ordemCrescente`.

@@ -1,17 +1,22 @@
 # 💼 Portfólio — Guilherme Souza
 
-Bem-vindo! Este repositório reúne meu site de portfólio e três projetos completos,
-cada um construído com uma linguagem e um banco de dados diferentes, de propósito:
-a ideia é mostrar versatilidade de verdade, não só uma stack repetida quatro vezes.
+Bem-vindo! Este repositório reúne meu site de portfólio e **quatro projetos
+completos**, cada um com linguagem, banco de dados e framework de front-end
+diferentes — de propósito: a ideia é mostrar versatilidade de verdade, não a
+mesma stack repetida.
 
 ## 📂 O que tem aqui
 
-| Pasta | Projeto | Stack | Banco | API externa |
-|-------|---------|-------|-------|-------------|
-| [`portfolio/`](portfolio/) | Site do portfólio | HTML, CSS, JavaScript | — | GitHub API |
-| [`rotakids/`](rotakids/) | 🚐 RotaKids — gestão de vans escolares com rota otimizada | Node.js + TypeScript + Express | PostgreSQL | OSRM + Nominatim (OpenStreetMap) |
-| [`metagrana/`](metagrana/) | 💰 MetaGrana — controle de gastos e metas de compra | Python + FastAPI | MongoDB | Mercado Livre + IA (Claude) |
-| [`planify/`](planify/) | 📊 Planify — organizador inteligente de planilhas | Java 17 + Spring Boot | MySQL | ViaCEP |
+| Pasta | Projeto | Back-end | Front-end | Banco | API externa |
+|-------|---------|----------|-----------|-------|-------------|
+| [`portfolio/`](portfolio/) | 🌐 Site do portfólio | — | HTML/CSS/JS puros | — | GitHub |
+| [`rotakids/`](rotakids/) | 🚐 RotaKids — vans escolares com rota otimizada | Node.js + TypeScript | **React 18** | PostgreSQL | OSRM + Nominatim |
+| [`metagrana/`](metagrana/) | 💰 MetaGrana — gastos e metas de compra | Python + FastAPI | **Vue 3** | MongoDB | Mercado Livre + IA |
+| [`planify/`](planify/) | 📊 Planify — organizador de planilhas (**DDD + DTO**) | Java 17 + Spring Boot | **Angular 17** | MySQL | ViaCEP |
+| [`cortecerto/`](cortecerto/) | ✂️ CorteCerto — sistema para esquadrias | **.NET 8** + motor **Python** | **Svelte 4** | PostgreSQL | motor de corte próprio |
+
+Cada aplicação tem **cor e ícone próprios**: RotaKids é azul 🔵, MetaGrana é
+verde 🟢, Planify é roxo 🟣 e CorteCerto é laranja 🟠.
 
 ## 🧭 Por onde começar
 
@@ -24,13 +29,24 @@ a ideia é mostrar versatilidade de verdade, não só uma stack repetida quatro 
 
 ## 🛠️ O que todos os projetos têm em comum
 
+- ✅ **Front-end de verdade** — React, Vue, Angular e Svelte (os 4 mais usados do mercado)
 - ✅ **API externa consumida** — todos integram com algum serviço real
-- ✅ **Banco de dados configurado** — cada um com um banco diferente
+- ✅ **Banco de dados configurado** — PostgreSQL, MongoDB e MySQL
 - ✅ **Docker + docker-compose** — sobe tudo com um comando
-- ✅ **Jenkinsfile** — pipeline de CI pronto (build → testes → imagem Docker)
-- ✅ **Testes unitários** — cada projeto na ferramenta padrão da sua linguagem
+- ✅ **Jenkinsfile** — pipeline de CI pronto (deps → testes → imagens Docker)
+- ✅ **Testes automatizados** — Jest, Vitest, Pytest, JUnit e xUnit (100+ testes)
 - ✅ **Interface responsiva** — funciona no celular e no desktop
 - ✅ **Documentação em português** — READMEs escritos para humanos
+
+## 🚪 Portas de cada projeto (com Docker)
+
+| Projeto | Endereço |
+|---------|----------|
+| portfolio | http://localhost:8080 |
+| rotakids | http://localhost:3000 |
+| metagrana | http://localhost:8000 (API docs em `/docs`) |
+| planify | http://localhost:8081 |
+| cortecerto | http://localhost:5080 |
 
 ## 📫 Contato
 

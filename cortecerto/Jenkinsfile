@@ -1,0 +1,52 @@
+// Pipeline de CI do CorteCerto: testa as três partes e constrói as imagens.
+pipeline {
+    agent any
+
+    stages {
+        stage('Testes do motor de corte (Python)') {
+            steps {
+                dir('cortecerto/motor-python') {
+                    sh '''
+                        python3 -m venv .venv
+                        . .venv/bin/activate
+                        pip install -r requirements.txt
+                        pytest -v
+                    '''
+                }
+            }
+        }
+
+        stage('Testes do front-end (Svelte)') {
+            steps {
+                dir('cortecerto/frontend') {
+                    sh 'npm ci || npm install'
+                    sh 'npm test'
+                    sh 'npm run build'
+                }
+            }
+        }
+
+        stage('Testes da API (.NET via Docker)') {
+            steps {
+                dir('cortecerto/api-dotnet') {
+                    // Roda o dotnet test dentro do SDK oficial — o agente não precisa de .NET
+                    sh 'docker run --rm -v "$PWD":/src -w /src mcr.microsoft.com/dotnet/sdk:8.0 dotnet test'
+                }
+            }
+        }
+
+        stage('Build das imagens Docker') {
+            steps {
+                dir('cortecerto') {
+                    sh 'docker build -t cortecerto-motor:latest ./motor-python'
+                    sh 'docker build -t cortecerto-api:latest -f api-dotnet/Dockerfile .'
+                }
+            }
+        }
+    }
+
+    post {
+        success { echo '✅ CorteCerto: pipeline concluído com sucesso!' }
+        failure { echo '❌ CorteCerto: algo falhou — confira os logs acima.' }
+    }
+}
