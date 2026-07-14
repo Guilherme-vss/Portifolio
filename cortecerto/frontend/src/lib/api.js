@@ -46,8 +46,15 @@ export function fraseDoCorte({ pecas, sobra }, tamanhoChapa, tamanhoCorte) {
          `e sobra ${sobra} cm para aproveitar em outro corte.`;
 }
 
+import { estaEmDemo, respostaDemo } from "./demo.js";
+
 /** Chamada padrão à API. */
 export async function api(caminho, { metodo = "GET", corpo = null } = {}) {
+  // No GitHub Pages não há backend: a demo responde (com a matemática real!)
+  if (estaEmDemo()) {
+    return respostaDemo(caminho, metodo, corpo);
+  }
+
   const resposta = await fetch("/api" + caminho, {
     method: metodo,
     headers: { "Content-Type": "application/json" },

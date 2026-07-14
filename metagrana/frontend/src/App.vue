@@ -17,7 +17,8 @@ const atualizar = () => { versao.value++; };
 
 <template>
   <header class="topo">
-    <img src="/icone.svg" alt="" />
+    <!-- :src dinâmico: o Vue não tenta importar o arquivo (ele vive em public/) -->
+    <img :src="'icone.svg'" alt="" />
     <div>
       <h1>MetaGrana</h1>
       <p>Controle seus gastos do mês e deixe o sistema caçar os menores preços das suas metas.</p>

@@ -18,7 +18,7 @@
 
 <nav class="navbar">
   <div class="navbar__marca">
-    <img src="/icone.svg" alt="" />
+    <img src="icone.svg" alt="" />
     <div>
       <strong>AlumiFort Esquadrias</strong>
       <small>corte certo, sem desperdício — com CorteCerto®</small>

@@ -30,8 +30,15 @@ export function validarMeta({ titulo, valor_alvo }) {
   return null;
 }
 
+import { estaEmDemo, respostaDemo } from "./demo.js";
+
 /** Chamada padrão à API do MetaGrana. */
 export async function api(caminho, { metodo = "GET", corpo = null } = {}) {
+  // No GitHub Pages não há backend: a demo responde com dados fictícios
+  if (estaEmDemo()) {
+    return respostaDemo(caminho, metodo, corpo);
+  }
+
   const resposta = await fetch("/api" + caminho, {
     method: metodo,
     headers: { "Content-Type": "application/json" },
