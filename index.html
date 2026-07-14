@@ -1,0 +1,250 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Portfólio de Guilherme Souza — desenvolvedor full-stack. Projetos em TypeScript, Python, Java, C# e os 4 maiores frameworks de front-end." />
+  <link rel="icon" type="image/svg+xml" href="icone.svg" />
+  <title>Guilherme Souza — Portfólio</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- ===== Cabeçalho / Navegação ===== -->
+  <header class="header">
+    <nav class="nav container">
+      <a href="#inicio" class="nav__logo">&lt;GS /&gt;</a>
+      <button class="nav__toggle" id="nav-toggle" aria-label="Abrir menu">☰</button>
+      <ul class="nav__menu" id="nav-menu">
+        <li><a href="#inicio" class="nav__link">Início</a></li>
+        <li><a href="#trajetoria" class="nav__link">Trajetória</a></li>
+        <li><a href="#projetos" class="nav__link">Projetos</a></li>
+        <li><a href="#habilidades" class="nav__link">Habilidades</a></li>
+        <li><a href="#contato" class="nav__link">Contato</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ===== Apresentação ===== -->
+    <section id="inicio" class="hero container">
+      <div class="hero__text revelar">
+        <p class="hero__greeting">// Olá, mundo! Eu sou</p>
+        <h1 class="hero__name">Guilherme <span class="gradiente">Souza</span></h1>
+        <h2 class="hero__role">Desenvolvedor <span id="papel-digitado" class="digitado"></span><span class="cursor">|</span></h2>
+        <p class="hero__bio">
+          Construo aplicações completas — do banco de dados à interface — com foco em
+          resolver problemas reais. Neste portfólio, cada projeto usa uma linguagem,
+          um banco e um framework de front-end diferentes, sempre com Docker,
+          testes e pipeline de CI. Versatilidade não é discurso: está no código.
+        </p>
+        <div class="hero__actions">
+          <a href="#projetos" class="btn btn--primary">🚀 Ver projetos</a>
+          <a href="#contato" class="btn btn--ghost">💬 Fale comigo</a>
+        </div>
+      </div>
+      <div class="hero__avatar" aria-hidden="true">👨‍💻</div>
+    </section>
+
+    <!-- ===== Números ===== -->
+    <section class="faixa-numeros">
+      <div class="container numeros">
+        <div class="numero revelar"><strong>5</strong><span>projetos completos</span></div>
+        <div class="numero revelar"><strong>8+</strong><span>linguagens &amp; frameworks</span></div>
+        <div class="numero revelar"><strong>4</strong><span>bancos de dados</span></div>
+        <div class="numero revelar"><strong>100+</strong><span>testes automatizados</span></div>
+      </div>
+    </section>
+
+    <!-- ===== Trajetória / Carreira ===== -->
+    <section id="trajetoria" class="section container">
+      <h2 class="section__title">Minha trajetória</h2>
+      <p class="section__subtitle">
+        O caminho até aqui — edite estas etapas com a sua história real
+        (formação, cursos, primeiro emprego, projetos marcantes).
+      </p>
+      <div class="linha-tempo">
+        <article class="etapa revelar">
+          <span class="etapa__ano">20XX</span>
+          <h3>🎓 Formação</h3>
+          <p>EDITE-ME: onde você estudou ou estuda (curso, instituição, previsão de
+            conclusão). Ex.: "Análise e Desenvolvimento de Sistemas — FATEC".</p>
+        </article>
+        <article class="etapa revelar">
+          <span class="etapa__ano">20XX</span>
+          <h3>📚 Primeiros passos no código</h3>
+          <p>EDITE-ME: como começou a programar, bootcamps e cursos que marcaram
+            (Alura, Udemy, DIO...), primeira linguagem.</p>
+        </article>
+        <article class="etapa revelar">
+          <span class="etapa__ano">20XX</span>
+          <h3>💼 Experiência profissional</h3>
+          <p>EDITE-ME: estágio ou emprego, o que você fazia e qual problema resolvia.
+            Se ainda não teve, conte um projeto freelance ou voluntário.</p>
+        </article>
+        <article class="etapa revelar">
+          <span class="etapa__ano">2026</span>
+          <h3>🚀 Hoje</h3>
+          <p>Construindo um portfólio poliglota — 5 aplicações completas com
+            TypeScript, Python, Java, C#, React, Vue, Angular e Svelte — e em busca
+            da próxima oportunidade para gerar impacto de verdade.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== Projetos em destaque ===== -->
+    <section id="projetos" class="section section--alt">
+      <div class="container">
+        <h2 class="section__title">Projetos em destaque</h2>
+        <p class="section__subtitle">Cada projeto com stack, banco e front-end diferentes — todos com Docker, testes e CI.</p>
+
+        <div class="cards">
+          <article class="card revelar" style="--cor-projeto: #2563eb">
+            <div class="card__icon">🚐</div>
+            <h3 class="card__title">RotaKids</h3>
+            <p class="card__desc">
+              Plataforma para vans escolares: pais marcam presença/falta dos filhos e o
+              motorista vê os pontos verdes/vermelhos no mapa, com a melhor rota de
+              coleta calculada automaticamente via OpenStreetMap.
+            </p>
+            <ul class="card__tags">
+              <li>TypeScript</li><li>Node.js</li><li>React</li><li>PostgreSQL</li><li>Leaflet</li>
+            </ul>
+            <div class="card__links">
+              <a class="card__link card__link--site" href="demos/rotakids/" target="_blank" rel="noopener">🔗 Ver site</a>
+              <a class="card__link" href="https://github.com/Guilherme-vss/Portifolio/tree/master/rotakids">Ver código →</a>
+            </div>
+          </article>
+
+          <article class="card revelar" style="--cor-projeto: #059669">
+            <div class="card__icon">💰</div>
+            <h3 class="card__title">MetaGrana</h3>
+            <p class="card__desc">
+              Controle de gastos com metas de compra: o sistema busca diariamente os
+              menores preços no Mercado Livre, avisa quando o preço cai e gera dicas
+              financeiras com IA.
+            </p>
+            <ul class="card__tags">
+              <li>Python</li><li>FastAPI</li><li>Vue 3</li><li>MongoDB</li><li>IA</li>
+            </ul>
+            <div class="card__links">
+              <a class="card__link card__link--site" href="demos/metagrana/" target="_blank" rel="noopener">🔗 Ver site</a>
+              <a class="card__link" href="https://github.com/Guilherme-vss/Portifolio/tree/master/metagrana">Ver código →</a>
+            </div>
+          </article>
+
+          <article class="card revelar" style="--cor-projeto: #7c3aed">
+            <div class="card__icon">📊</div>
+            <h3 class="card__title">Planify</h3>
+            <p class="card__desc">
+              Organizador de planilhas com arquitetura DDD: limpa, ordena, remove
+              duplicados e enriquece endereços via ViaCEP — com métricas do antes
+              e depois e histórico no banco.
+            </p>
+            <ul class="card__tags">
+              <li>Java 17</li><li>Spring Boot</li><li>Angular 17</li><li>MySQL</li><li>DDD + DTO</li>
+            </ul>
+            <div class="card__links">
+              <a class="card__link card__link--site" href="demos/planify/" target="_blank" rel="noopener">🔗 Ver site</a>
+              <a class="card__link" href="https://github.com/Guilherme-vss/Portifolio/tree/master/planify">Ver código →</a>
+            </div>
+          </article>
+
+          <article class="card revelar" style="--cor-projeto: #ea580c">
+            <div class="card__icon">✂️</div>
+            <h3 class="card__title">CorteCerto</h3>
+            <p class="card__desc">
+              Sistema para esquadrias: cliente pede chapas sob medida e o fornecedor
+              calcula cortes sem desperdício — chapa de 90 em peças de 35,7? Saem 2
+              e sobram 18,6 cm, calculado por um motor Python dedicado.
+            </p>
+            <ul class="card__tags">
+              <li>.NET 8</li><li>C#</li><li>Python</li><li>Svelte</li><li>PostgreSQL</li>
+            </ul>
+            <div class="card__links">
+              <a class="card__link card__link--site" href="demos/cortecerto/" target="_blank" rel="noopener">🔗 Ver site</a>
+              <a class="card__link" href="https://github.com/Guilherme-vss/Portifolio/tree/master/cortecerto">Ver código →</a>
+            </div>
+          </article>
+        </div>
+
+        <!-- Repositórios carregados da API do GitHub -->
+        <h3 class="section__title section__title--sub">Mais repositórios no GitHub</h3>
+        <div class="repos" id="repos">
+          <p class="repos__loading">Carregando repositórios do GitHub...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Habilidades ===== -->
+    <section id="habilidades" class="section container">
+      <h2 class="section__title">Linguagens &amp; Tecnologias</h2>
+      <div class="skills">
+        <div class="skills__group revelar">
+          <h3>💻 Linguagens</h3>
+          <ul class="skills__list">
+            <li>JavaScript / TypeScript</li><li>Python</li><li>Java</li><li>C# (.NET)</li><li>SQL</li><li>HTML &amp; CSS</li>
+          </ul>
+        </div>
+        <div class="skills__group revelar">
+          <h3>🎨 Front-end</h3>
+          <ul class="skills__list">
+            <li>React 18</li><li>Vue 3</li><li>Angular 17</li><li>Svelte 4</li><li>Vite</li>
+          </ul>
+        </div>
+        <div class="skills__group revelar">
+          <h3>⚙️ Back-end &amp; Bancos</h3>
+          <ul class="skills__list">
+            <li>Node.js / Express</li><li>FastAPI</li><li>Spring Boot (DDD)</li><li>.NET 8</li>
+            <li>PostgreSQL • MySQL • MongoDB</li>
+          </ul>
+        </div>
+        <div class="skills__group revelar">
+          <h3>🚢 DevOps &amp; Qualidade</h3>
+          <ul class="skills__list">
+            <li>Docker &amp; docker-compose</li><li>Jenkins (CI/CD)</li><li>Git &amp; GitHub</li>
+            <li>Jest • Vitest • Pytest • JUnit • xUnit</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Contato ===== -->
+    <section id="contato" class="section section--alt">
+      <div class="container">
+        <h2 class="section__title">Vamos conversar?</h2>
+        <p class="section__subtitle">Estou aberto a oportunidades e colaborações. Me chame por onde preferir:</p>
+        <div class="contacts">
+          <a class="contact revelar" href="mailto:guilhermevsouza18@gmail.com">
+            <span class="contact__icon">✉️</span>
+            <span class="contact__label">Email</span>
+            <span class="contact__value">guilhermevsouza18@gmail.com</span>
+          </a>
+          <a class="contact revelar" href="https://www.linkedin.com/in/SEU-PERFIL" target="_blank" rel="noopener">
+            <span class="contact__icon">💼</span>
+            <span class="contact__label">LinkedIn</span>
+            <span class="contact__value">/in/SEU-PERFIL</span>
+          </a>
+          <a class="contact revelar" href="https://github.com/Guilherme-vss" target="_blank" rel="noopener">
+            <span class="contact__icon">🐙</span>
+            <span class="contact__label">GitHub</span>
+            <span class="contact__value">@Guilherme-vss</span>
+          </a>
+          <a class="contact revelar" href="https://wa.me/5500000000000">
+            <span class="contact__icon">📱</span>
+            <span class="contact__label">Celular / WhatsApp</span>
+            <span class="contact__value">(00) 00000-0000</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 Guilherme Souza — HTML, CSS e JS puros (por escolha!). Hospedado no GitHub Pages.</p>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
+
