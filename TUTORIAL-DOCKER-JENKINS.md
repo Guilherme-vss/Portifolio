@@ -1,4 +1,4 @@
-# 🐳 Tutorial: Docker e Jenkins do zero
+﻿# 🐳 Tutorial: Docker e Jenkins do zero
 
 Este tutorial assume que você **nunca usou** Docker nem Jenkins. Vamos com calma.
 
@@ -119,7 +119,7 @@ O que isso faz:
    - **Definition**: `Pipeline script from SCM`
    - **SCM**: `Git`
    - **Repository URL**: a URL do seu repositório no GitHub
-     (ex.: `https://github.com/SEU-USUARIO/portfolio.git`)
+     (ex.: `https://github.com/Guilherme-vss/Portifolio.git`)
    - **Branch**: `*/main`
    - **Script Path**: `rotakids/Jenkinsfile` (a pasta do projeto + `/Jenkinsfile`)
 3. **Save** → **Build Now**.

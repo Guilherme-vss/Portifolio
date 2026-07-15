@@ -1,4 +1,4 @@
-# 🌐 Portfólio — Site pessoal
+﻿# 🌐 Portfólio — Site pessoal
 
 Meu site de portfólio, feito com **HTML, CSS e JavaScript puros** — sem frameworks.
 A escolha foi proposital: um portfólio estático carrega instantaneamente, funciona
@@ -32,14 +32,14 @@ npm start
 # acesse http://localhost:3000
 ```
 
-## ⚙️ Configuração (importante!)
+## ⚙️ Configuração
 
-Antes de publicar, troque os textos de exemplo pelos seus dados reais:
+Os dados de contato já estão configurados:
 
-1. **`js/api.js`** — mude `GITHUB_USER = "SEU-USUARIO"` para seu usuário do GitHub.
-2. **`index.html`** — procure por `SEU-USUARIO` e `SEU-PERFIL` e substitua pelos
-   seus links de GitHub e LinkedIn; atualize também o número de celular no
-   link do WhatsApp (`https://wa.me/55DDDNUMERO`).
+- **`js/api.js`** — `GITHUB_USER = "Guilherme-vss"` (a página lista os repositórios dessa conta).
+- **`index.html`** — GitHub, LinkedIn ([/in/guilherme-vss](https://www.linkedin.com/in/guilherme-vss))
+  e WhatsApp ((11) 96122-1800) já apontam para os links reais.
+- O que ainda falta personalizar: a seção **"Minha trajetória"** (procure por `EDITE-ME`).
 
 ## 🧪 Testes
 

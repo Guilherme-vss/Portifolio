@@ -1,4 +1,4 @@
-# 🐙 Tutorial: subindo tudo no GitHub (e publicando o portfólio de graça)
+﻿# 🐙 Tutorial: subindo tudo no GitHub (e publicando o portfólio de graça)
 
 ## Passo 0 — Pré-requisitos
 
@@ -31,7 +31,7 @@ git init
 git add .
 git commit -m "Portfólio completo: site + RotaKids + MetaGrana + Planify"
 git branch -M main
-git remote add origin https://github.com/SEU-USUARIO/portfolio.git
+git remote add origin https://github.com/Guilherme-vss/Portifolio.git
 git push -u origin main
 ```
 
@@ -46,12 +46,12 @@ Pronto! Atualize a página do repositório e veja tudo lá. 🎉
 2. Em **Source**: escolha `Deploy from a branch`
 3. **Branch**: `main` — **Folder**: `/ (root)` → **Save**
 4. Aguarde 1–2 minutos. Seu site estará em:
-   `https://SEU-USUARIO.github.io/portfolio/portfolio/`
+   `https://guilherme-vss.github.io/Portifolio/portfolio/`
 
 > 💡 O endereço termina com `/portfolio/` duas vezes porque o site está dentro
 > da pasta `portfolio/` do repositório. Se quiser um endereço mais limpo
-> (`https://SEU-USUARIO.github.io`), crie um repositório separado chamado
-> exatamente `SEU-USUARIO.github.io` e coloque nele só o conteúdo da pasta
+> (`https://guilherme-vss.github.io`), crie um repositório separado chamado
+> exatamente `guilherme-vss.github.io` e coloque nele só o conteúdo da pasta
 > `portfolio/`.
 
 ## Passo 4 — Antes de divulgar, personalize!

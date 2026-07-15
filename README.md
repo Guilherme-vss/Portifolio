@@ -1,4 +1,4 @@
-# 💼 Portfólio — Guilherme Souza
+﻿# 💼 Portfólio — Guilherme Souza
 
 Bem-vindo! Este repositório reúne meu site de portfólio e **quatro projetos
 completos**, cada um com linguagem, banco de dados e framework de front-end
@@ -51,5 +51,7 @@ verde 🟢, Planify é roxo 🟣 e CorteCerto é laranja 🟠.
 ## 📫 Contato
 
 - **Email:** guilhermevsouza18@gmail.com
-- **GitHub:** [github.com/SEU-USUARIO](https://github.com/SEU-USUARIO) *(troque pelo seu usuário)*
-- **LinkedIn:** [linkedin.com/in/SEU-PERFIL](https://linkedin.com/in/SEU-PERFIL) *(troque pelo seu perfil)*
+- **GitHub:** [github.com/Guilherme-vss](https://github.com/Guilherme-vss)
+- **LinkedIn:** [linkedin.com/in/guilherme-vss](https://www.linkedin.com/in/guilherme-vss)
+- **Celular/WhatsApp:** [(11) 96122-1800](https://wa.me/5511961221800)
+- **Site publicado:** [guilherme-vss.github.io/Portifolio](https://guilherme-vss.github.io/Portifolio/)
