@@ -42,17 +42,22 @@ Pronto! Atualize a página do repositório e veja tudo lá. 🎉
 
 ## Passo 3 — Publicar o site do portfólio no GitHub Pages (grátis!)
 
-1. No repositório: **Settings** → **Pages** (menu lateral)
-2. Em **Source**: escolha `Deploy from a branch`
-3. **Branch**: `main` — **Folder**: `/ (root)` → **Save**
-4. Aguarde 1–2 minutos. Seu site estará em:
-   `https://guilherme-vss.github.io/Portifolio/portfolio/`
+**Este repositório já está publicado** em
+`https://guilherme-vss.github.io/Portifolio/` — o GitHub Pages serve o branch
+`gh-pages`, que contém o site + as demos compiladas (o conteúdo da pasta `docs/`).
 
-> 💡 O endereço termina com `/portfolio/` duas vezes porque o site está dentro
-> da pasta `portfolio/` do repositório. Se quiser um endereço mais limpo
-> (`https://guilherme-vss.github.io`), crie um repositório separado chamado
-> exatamente `guilherme-vss.github.io` e coloque nele só o conteúdo da pasta
-> `portfolio/`.
+Para **atualizar o site** depois de qualquer mudança, rode na raiz do projeto:
+
+```powershell
+.\publicar-site.ps1
+```
+
+Ele recompila as demos, commita no `master` e republica o `gh-pages` — em
+~1 minuto o site novo está no ar.
+
+> 💡 Se um dia quiser um endereço mais limpo (`https://guilherme-vss.github.io`),
+> crie um repositório chamado exatamente `guilherme-vss.github.io` e publique
+> nele o conteúdo da pasta `docs/`.
 
 ## Passo 4 — Antes de divulgar, personalize!
 
