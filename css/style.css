@@ -80,6 +80,20 @@ body {
 
 .nav__link:hover { color: var(--primary); }
 
+/* ===== Barra de progresso da rolagem ===== */
+.scroll-trilha {
+  height: 3px;
+  background: transparent;
+}
+
+#scroll-progresso {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 0 3px 3px 0;
+  transition: width 0.08s linear;
+}
+
 /* ===== Hero / Apresentação ===== */
 .hero {
   display: flex;
@@ -225,6 +239,23 @@ body {
   font-weight: 800;
   font-family: Consolas, monospace;
   font-size: 0.85rem;
+}
+
+.etapa__tag {
+  margin-left: 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 0.12rem 0.6rem;
+  background: rgba(79, 140, 255, 0.15);
+  color: var(--primary);
+}
+
+.etapa__tag.experiencia {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--accent);
 }
 
 .etapa h3 { margin: 0.15rem 0 0.3rem; }
@@ -399,6 +430,57 @@ body {
   padding: 0.35rem 0;
   border-bottom: 1px dashed var(--border);
   color: var(--text-muted);
+}
+
+/* ===== Por que me contratar? ===== */
+.porque { display: grid; gap: 1.2rem; }
+
+.porque__botoes { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.porque__botao {
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text-muted);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.porque__botao:hover { transform: translateY(-2px); border-color: var(--primary); color: var(--text); }
+
+.porque__botao.ativa {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.porque__painel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 1.6rem;
+}
+
+.porque__painel h3 { margin-bottom: 0.5rem; }
+.porque__painel p { color: var(--text-muted); }
+
+.porque__prova {
+  margin-top: 0.8rem;
+  font-size: 0.88rem;
+  color: var(--accent) !important;
+  font-weight: 600;
+}
+
+.porque__painel.trocando { animation: surgir 0.35s ease; }
+
+@keyframes surgir {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
 }
 
 /* ===== Contato ===== */
