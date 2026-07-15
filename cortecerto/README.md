@@ -21,8 +21,9 @@ em cada uma e a sobra exata de cada chapa. Dá até para informar o **kerf**
 | Aba | Quem usa | O que tem |
 |-----|----------|-----------|
 | 🏠 **Início** | todos | apresentação da empresa + vitrine de produtos (ilustrações em SVG) |
-| 🛒 **Fazer pedido** | cliente | catálogo de chapas (tamanho, cor, grossura, preço), formulário de pedido e **simulação ao vivo**: ao digitar a medida, já mostra quantas peças saem e a sobra |
-| 🏭 **Fornecedor** | esquadria | calculadora de corte, plano otimizado, **estoque** editável e **fila de pedidos** com fluxo de status (recebido → em produção → pronto → entregue) e cálculo de produção por pedido |
+| 🛒 **Fazer pedido** | cliente | catálogo de **alumínio, MDF e HDF** com filtro por material; monta uma **lista de chapas** (cada uma com cor, grossura, medida e quantidade), vê a **simulação de corte ao vivo**, a estimativa de custo, e recebe um **código de acompanhamento** |
+| 📦 **Acompanhar** | cliente | digita o código e vê o andamento: linha do tempo do status + **checklist item a item** do que já foi cortado |
+| 🏭 **Fornecedor** | esquadria | **fila de pedidos** com barra de progresso e checklist (marca cada item conforme produz), fluxo de status (recebido → em produção → pronto → entregue), calculadora de corte, plano otimizado e **estoque** editável |
 
 ## 🛠️ Arquitetura (3 serviços + banco)
 

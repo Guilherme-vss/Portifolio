@@ -1,8 +1,8 @@
 import App from "./App.svelte";
-import { mostrarFaixaDemo } from "./lib/demo.js";
+import { iniciarNucleo } from "./lib/nucleo.js";
 import "./styles.css";
 
-mostrarFaixaDemo();
+iniciarNucleo();
 
 const app = new App({
   target: document.getElementById("app"),

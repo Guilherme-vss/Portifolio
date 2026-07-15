@@ -113,6 +113,47 @@ class PlanilhaTest {
     }
 
     @Test
+    @DisplayName("Remove colunas em que todos os dados estão vazios")
+    void removeColunasVazias() {
+        var planilha = Planilha.de(List.of(
+                List.of("nome", "obsoleto", "idade"),
+                List.of("Ana", "", "30"),
+                List.of("Bruno", "  ", "25")
+        ));
+        var resultado = planilha.semColunasVazias();
+
+        assertEquals(List.of("nome", "idade"), resultado.linhas().get(0));
+        assertEquals(List.of("Ana", "30"), resultado.linhas().get(1));
+    }
+
+    @Test
+    @DisplayName("Padroniza texto em Título sem mexer em números nem no cabeçalho")
+    void textoEmTitulo() {
+        var planilha = Planilha.de(List.of(
+                List.of("nome", "valor"),
+                List.of("ana maria-souza", "1.234,56")
+        ));
+        var resultado = planilha.comTextoEmTitulo();
+
+        assertEquals("nome", resultado.linhas().get(0).get(0));
+        assertEquals("Ana Maria-Souza", resultado.linhas().get(1).get(0));
+        assertEquals("1.234,56", resultado.linhas().get(1).get(1));
+    }
+
+    @Test
+    @DisplayName("Preenche células vazias das linhas de dados com o valor padrão")
+    void preencheVazios() {
+        var planilha = Planilha.de(List.of(
+                List.of("nome", "cidade"),
+                List.of("Ana", "")
+        ));
+        var resultado = planilha.comVaziosPreenchidos("—");
+
+        assertEquals("—", resultado.linhas().get(1).get(1));
+        assertEquals("nome", resultado.linhas().get(0).get(0)); // cabeçalho intacto
+    }
+
+    @Test
     @DisplayName("Gera CSV com ponto-e-vírgula e uma linha por registro")
     void escreveCsv() {
         var planilha = Planilha.de(List.of(List.of("nome", "idade"), List.of("Ana", "30")));

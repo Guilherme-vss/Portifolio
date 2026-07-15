@@ -27,12 +27,13 @@
 </script>
 
 <section class="hero">
-  <h1>Esquadrias de alumínio <span>na medida certa</span></h1>
+  <h1>Esquadrias e chapas <span>na medida certa</span></h1>
   <p>
-    Há 20 anos a AlumiFort fabrica janelas, portas e box sob medida.
-    Com o sistema <strong>CorteCerto</strong>, cada chapa é aproveitada ao máximo:
-    você pede a medida exata e nosso motor de cálculo planeja o corte
-    sem desperdício — o que economiza material e deixa seu orçamento mais justo.
+    Há 20 anos a AlumiFort fabrica janelas, portas e box sob medida — e corta
+    chapas de <strong>alumínio, MDF e HDF</strong> em várias cores e grossuras.
+    Com o sistema <strong>CorteCerto</strong>, você monta sua lista de cortes,
+    recebe um código e acompanha a produção item a item, enquanto nosso motor
+    de cálculo planeja tudo sem desperdício.
   </p>
   <div class="selos">
     <span>✂️ Corte computadorizado</span>

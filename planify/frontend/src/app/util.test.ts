@@ -1,6 +1,6 @@
 /** Testes das funções puras do front do Planify. Rode com: npm test */
 import { describe, expect, test } from "vitest";
-import { arquivoSuportado, csvParaBlobParts, formatarData, percentualMantido } from "./util";
+import { arquivoSuportado, csvParaBlobParts, formatarData, percentualMantido, tabelaParaHtml } from "./util";
 
 describe("arquivoSuportado", () => {
   test("aceita .csv e .xlsx em qualquer caixa", () => {
@@ -31,6 +31,20 @@ describe("formatarData", () => {
   });
   test("data inválida vira travessão", () => {
     expect(formatarData("não é data")).toBe("—");
+  });
+});
+
+describe("tabelaParaHtml", () => {
+  test("primeira linha vira cabeçalho <th> e as demais <td>", () => {
+    const html = tabelaParaHtml([["nome"], ["Ana"]]);
+    expect(html).toContain("<th");
+    expect(html).toContain(">nome</th>");
+    expect(html).toContain(">Ana</td>");
+  });
+  test("escapa HTML das células (segurança)", () => {
+    const html = tabelaParaHtml([["a"], ["<script>alert(1)</script>"]]);
+    expect(html).not.toContain("<script>");
+    expect(html).toContain("&lt;script&gt;");
   });
 });
 

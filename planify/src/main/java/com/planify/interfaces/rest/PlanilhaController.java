@@ -50,6 +50,9 @@ public class PlanilhaController {
             @RequestParam(defaultValue = "true") boolean limparEspacos,
             @RequestParam(defaultValue = "true") boolean removerVazias,
             @RequestParam(defaultValue = "true") boolean removerDuplicadas,
+            @RequestParam(defaultValue = "false") boolean removerColunasVazias,
+            @RequestParam(defaultValue = "false") boolean textoEmTitulo,
+            @RequestParam(defaultValue = "") String preencherVaziosCom,
             @RequestParam(defaultValue = "-1") int colunaOrdenacao,
             @RequestParam(defaultValue = "true") boolean ordemCrescente,
             @RequestParam(defaultValue = "-1") int colunaCep) throws IOException {
@@ -63,6 +66,7 @@ public class PlanilhaController {
 
         OpcoesOrganizacaoDTO opcoes = new OpcoesOrganizacaoDTO(
                 limparEspacos, removerVazias, removerDuplicadas,
+                removerColunasVazias, textoEmTitulo, preencherVaziosCom,
                 colunaOrdenacao, ordemCrescente, colunaCep);
 
         OrganizacaoResponseDTO resposta = organizarPlanilha.executar(nome, planilha, opcoes);

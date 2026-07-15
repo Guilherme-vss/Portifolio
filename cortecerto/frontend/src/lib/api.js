@@ -25,16 +25,33 @@ export function proximoStatus(status) {
   return indice >= 0 && indice < fluxo.length - 1 ? fluxo[indice + 1] : null;
 }
 
-/** Valida o formulário de pedido do cliente antes de enviar. */
-export function validarPedido({ nomeCliente, contato, chapaId, medidaCorteCm, quantidadePecas }) {
-  if (!nomeCliente?.trim()) return "Informe seu nome";
-  if (!contato?.trim()) return "Informe um contato (telefone ou email)";
+/** Valida UM item da lista antes de entrar no carrinho. */
+export function validarItem({ chapaId, medidaCorteCm, quantidadePecas }, tamanhoChapa) {
   if (!chapaId) return "Escolha uma chapa do catálogo";
   const medida = Number(medidaCorteCm);
   if (!medida || medida <= 0) return "Informe a medida do corte em cm";
+  if (tamanhoChapa && medida > tamanhoChapa) {
+    return `O corte (${medida} cm) é maior que a chapa (${tamanhoChapa} cm)`;
+  }
   const quantidade = Number(quantidadePecas);
   if (!quantidade || quantidade <= 0) return "Peça pelo menos 1 peça";
   return null;
+}
+
+/** Valida o pedido completo (dados do cliente + lista de itens). */
+export function validarPedido({ nomeCliente, contato, itens }) {
+  if (!nomeCliente?.trim()) return "Informe seu nome";
+  if (!contato?.trim()) return "Informe um contato (telefone ou email)";
+  if (!itens || itens.length === 0) return "Adicione pelo menos uma chapa à lista";
+  return null;
+}
+
+/** Percentual de itens já produzidos de um pedido (para a barra de progresso). */
+export function progressoDoPedido(pedido) {
+  const total = pedido?.itens?.length || 0;
+  if (total === 0) return 0;
+  const feitos = pedido.itens.filter((item) => item.feito).length;
+  return Math.round((feitos / total) * 100);
 }
 
 /** Resume o resultado da calculadora numa frase de balcão. */
@@ -46,13 +63,14 @@ export function fraseDoCorte({ pecas, sobra }, tamanhoChapa, tamanhoCorte) {
          `e sobra ${sobra} cm para aproveitar em outro corte.`;
 }
 
-import { estaEmDemo, respostaDemo } from "./demo.js";
+import { motorLocal, usarMotorLocal } from "./demo.js";
 
 /** Chamada padrão à API. */
 export async function api(caminho, { metodo = "GET", corpo = null } = {}) {
-  // No GitHub Pages não há backend: a demo responde (com a matemática real!)
-  if (estaEmDemo()) {
-    return respostaDemo(caminho, metodo, corpo);
+  // Sem servidor (ex.: GitHub Pages), o motor local assume — com a mesma
+  // matemática do motor Python e os dados salvos no próprio navegador.
+  if (usarMotorLocal()) {
+    return motorLocal(caminho, metodo, corpo);
   }
 
   const resposta = await fetch("/api" + caminho, {

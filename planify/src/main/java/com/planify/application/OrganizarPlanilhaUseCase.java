@@ -61,6 +61,21 @@ public class OrganizarPlanilhaUseCase {
             operacoes.append("remover-duplicadas ");
         }
 
+        if (opcoes.removerColunasVazias()) {
+            planilha = planilha.semColunasVazias();
+            operacoes.append("remover-colunas-vazias ");
+        }
+
+        if (opcoes.textoEmTitulo()) {
+            planilha = planilha.comTextoEmTitulo();
+            operacoes.append("texto-titulo ");
+        }
+
+        if (opcoes.preencherVaziosCom() != null && !opcoes.preencherVaziosCom().isEmpty()) {
+            planilha = planilha.comVaziosPreenchidos(opcoes.preencherVaziosCom());
+            operacoes.append("preencher-vazios ");
+        }
+
         if (opcoes.colunaOrdenacao() >= 0) {
             planilha = planilha.ordenadaPor(opcoes.colunaOrdenacao(), opcoes.ordemCrescente());
             operacoes.append("ordenar:").append(opcoes.colunaOrdenacao()).append(" ");

@@ -30,6 +30,10 @@ export interface Opcoes {
   limparEspacos: boolean;
   removerVazias: boolean;
   removerDuplicadas: boolean;
+  removerColunasVazias: boolean;
+  textoEmTitulo: boolean;
+  preencherVazios: boolean;
+  preencherVaziosCom: string;
   ordenar: boolean;
   colunaOrdenacao: number;
   ordemCrescente: boolean;
@@ -70,7 +74,7 @@ export class PlanilhaService {
   ];
 
   constructor() {
-    this.mostrarFaixaDemo();
+    // sem faixas: a versão local se comporta como o sistema completo
   }
 
   organizar(arquivo: File, opcoes: Opcoes): Observable<RespostaOrganizacao> {
@@ -81,7 +85,7 @@ export class PlanilhaService {
         metricas: { linhasAntes: 9, linhasDepois: 5, vaziasRemovidas: 2, duplicadasRemovidas: 2, idProcessamento: 4 },
       };
       this.historicoDemo = [
-        { id: 4, nomeArquivo: arquivo.name, operacoes: "demonstração",
+        { id: 4, nomeArquivo: arquivo.name, operacoes: "organização local",
           linhasAntes: 9, linhasDepois: 5, processadoEm: new Date().toISOString() },
         ...this.historicoDemo,
       ];
@@ -93,6 +97,9 @@ export class PlanilhaService {
     dados.append("limparEspacos", String(opcoes.limparEspacos));
     dados.append("removerVazias", String(opcoes.removerVazias));
     dados.append("removerDuplicadas", String(opcoes.removerDuplicadas));
+    dados.append("removerColunasVazias", String(opcoes.removerColunasVazias));
+    dados.append("textoEmTitulo", String(opcoes.textoEmTitulo));
+    dados.append("preencherVaziosCom", opcoes.preencherVazios ? opcoes.preencherVaziosCom : "");
     dados.append("colunaOrdenacao", String(opcoes.ordenar ? opcoes.colunaOrdenacao : -1));
     dados.append("ordemCrescente", String(opcoes.ordemCrescente));
     dados.append("colunaCep", String(opcoes.normalizarCep ? opcoes.colunaCep : -1));
@@ -106,14 +113,4 @@ export class PlanilhaService {
     return this.http.get<Processamento[]>("/api/historico");
   }
 
-  private mostrarFaixaDemo(): void {
-    if (!estaEmDemo() || document.getElementById("faixa-demo")) return;
-    const faixa = document.createElement("div");
-    faixa.id = "faixa-demo";
-    faixa.textContent = "🧪 Demonstração com dados fictícios — envie qualquer arquivo para ver o fluxo. O sistema completo (DDD + ViaCEP) roda com Docker.";
-    faixa.style.cssText =
-      "position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#4c1d95;color:#fff;" +
-      "text-align:center;font:600 12px 'Segoe UI',sans-serif;padding:7px 12px;opacity:0.95";
-    document.body.appendChild(faixa);
-  }
 }

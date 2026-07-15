@@ -9,12 +9,15 @@ namespace CorteCerto.Tests;
 /// </summary>
 public class ValidadorTest
 {
+    private static NovoItemDto ItemValido() =>
+        new(ChapaId: 1, MedidaCorteCm: 35.7, QuantidadePecas: 4);
+
     private static NovoPedidoDto PedidoValido() =>
-        new("Ana Souza", "(11) 99999-0000", ChapaId: 1,
-            MedidaCorteCm: 35.7, QuantidadePecas: 4, Observacao: null);
+        new("Ana Souza", "(11) 99999-0000", Observacao: null,
+            Itens: new List<NovoItemDto> { ItemValido(), new(5, 120, 2) });
 
     [Fact]
-    public void Pedido_completo_passa_na_validacao()
+    public void Pedido_completo_com_varios_itens_passa_na_validacao()
     {
         Assert.Null(Validador.ValidarPedido(PedidoValido()));
     }
@@ -33,20 +36,35 @@ public class ValidadorTest
         Assert.Contains("contato", Validador.ValidarPedido(pedido)!);
     }
 
+    [Fact]
+    public void Pedido_sem_itens_e_rejeitado()
+    {
+        var pedido = PedidoValido() with { Itens = new List<NovoItemDto>() };
+        Assert.Contains("pelo menos uma chapa", Validador.ValidarPedido(pedido)!);
+    }
+
+    [Fact]
+    public void Um_item_invalido_derruba_o_pedido_inteiro()
+    {
+        var pedido = PedidoValido() with
+        {
+            Itens = new List<NovoItemDto> { ItemValido(), new(1, 0, 3) },
+        };
+        Assert.Contains("medida", Validador.ValidarPedido(pedido)!);
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(-10)]
     public void Medida_de_corte_invalida_e_rejeitada(double medida)
     {
-        var pedido = PedidoValido() with { MedidaCorteCm = medida };
-        Assert.Contains("medida", Validador.ValidarPedido(pedido)!);
+        Assert.Contains("medida", Validador.ValidarItem(ItemValido() with { MedidaCorteCm = medida })!);
     }
 
     [Fact]
     public void Quantidade_zero_e_rejeitada()
     {
-        var pedido = PedidoValido() with { QuantidadePecas = 0 };
-        Assert.NotNull(Validador.ValidarPedido(pedido));
+        Assert.NotNull(Validador.ValidarItem(ItemValido() with { QuantidadePecas = 0 }));
     }
 
     [Theory]
@@ -72,5 +90,14 @@ public class ValidadorTest
     {
         Assert.NotNull(Validador.ValidarEstoque(new NovoEstoqueDto(1, -5)));
         Assert.Null(Validador.ValidarEstoque(new NovoEstoqueDto(1, 0)));
+    }
+
+    [Fact]
+    public void Codigo_de_acompanhamento_tem_formato_AF_XXXXX()
+    {
+        var codigo = Validador.GerarCodigo(new Random(42));
+        Assert.Matches(@"^AF-[A-Z2-9]{5}$", codigo);
+        Assert.DoesNotContain("0", codigo);
+        Assert.DoesNotContain("O", codigo.Substring(3));
     }
 }

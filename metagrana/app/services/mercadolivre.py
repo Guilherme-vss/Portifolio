@@ -51,3 +51,43 @@ async def buscar_ofertas(termo: str, limite: int = 5) -> list[dict]:
         resposta = await cliente.get(montar_url_busca(termo, limite))
         resposta.raise_for_status()
         return extrair_ofertas(resposta.json())
+
+
+def extrair_promocoes(resposta: dict) -> list[dict]:
+    """Filtra da resposta só os anúncios COM DESCONTO real.
+
+    O Mercado Livre manda `original_price` quando o item está em promoção;
+    comparamos com o preço atual e calculamos o percentual de desconto.
+    """
+    promocoes = []
+    for item in resposta.get("results") or []:
+        preco = item.get("price")
+        original = item.get("original_price")
+        if not preco or not original or original <= preco:
+            continue
+        promocoes.append({
+            "titulo": item.get("title", "Sem título"),
+            "preco": float(preco),
+            "preco_original": float(original),
+            "desconto": round((1 - preco / original) * 100),
+            "link": item.get("permalink", ""),
+        })
+    return sorted(promocoes, key=lambda promo: -promo["desconto"])
+
+
+# Categorias que a vitrine de promoções varre por padrão
+TERMOS_PROMOCOES = ["video game console", "notebook", "smart tv", "celular samsung", "air fryer"]
+
+
+async def buscar_promocoes(limite_por_termo: int = 8) -> list[dict]:
+    """Varre as categorias populares e junta as melhores promoções do dia."""
+    encontradas: list[dict] = []
+    async with httpx.AsyncClient(timeout=10) as cliente:
+        for termo in TERMOS_PROMOCOES:
+            try:
+                resposta = await cliente.get(montar_url_busca(termo, limite_por_termo))
+                resposta.raise_for_status()
+                encontradas.extend(extrair_promocoes(resposta.json()))
+            except httpx.HTTPError:
+                continue  # uma categoria fora do ar não derruba a vitrine
+    return sorted(encontradas, key=lambda promo: -promo["desconto"])[:12]

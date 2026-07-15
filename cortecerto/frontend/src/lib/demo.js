@@ -1,28 +1,38 @@
 /**
- * demo.js — modo demonstração do CorteCerto (GitHub Pages, sem backend).
+ * demo.js — motor LOCAL do CorteCerto.
  *
- * Diferencial desta demo: a matemática de corte roda DE VERDADE aqui no
- * navegador (mesma lógica do motor Python), então a calculadora e o plano
- * otimizado funcionam 100% mesmo sem servidor.
+ * Quando o site roda sem o servidor (ex.: hospedado no GitHub Pages),
+ * este módulo assume o papel da API: os dados ficam salvos no navegador
+ * (localStorage) e TODA a matemática de corte roda aqui, idêntica ao
+ * motor Python. Ou seja: o sistema é 100% funcional mesmo sem backend.
  */
 
-export function estaEmDemo() {
+export function usarMotorLocal() {
   return (
     typeof window !== "undefined" &&
     (window.location.hostname.endsWith("github.io") ||
-      window.location.search.includes("demo=1"))
+      window.location.protocol === "file:" ||
+      window.location.search.includes("local=1"))
   );
 }
 
-export function mostrarFaixaDemo() {
-  if (!estaEmDemo() || document.getElementById("faixa-demo")) return;
-  const faixa = document.createElement("div");
-  faixa.id = "faixa-demo";
-  faixa.textContent = "🧪 Demonstração — a calculadora de corte funciona de verdade! O sistema completo (.NET + Python + PostgreSQL) roda com Docker.";
-  faixa.style.cssText =
-    "position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#7c2d12;color:#fff;" +
-    "text-align:center;font:600 12px 'Segoe UI',sans-serif;padding:7px 12px;opacity:0.95";
-  document.body.appendChild(faixa);
+/* ---------- Persistência no navegador ---------- */
+
+function carregar(chave, padrao) {
+  try {
+    const bruto = localStorage.getItem("cc-" + chave);
+    return bruto ? JSON.parse(bruto) : padrao;
+  } catch {
+    return padrao;
+  }
+}
+
+function salvar(chave, valor) {
+  try {
+    localStorage.setItem("cc-" + chave, JSON.stringify(valor));
+  } catch {
+    /* modo anônimo sem espaço: segue só em memória */
+  }
 }
 
 /* ---------- A matemática (espelho do motor Python) ---------- */
@@ -90,51 +100,98 @@ function arred(numero, casas = 2) {
   return Math.round(numero * fator) / fator;
 }
 
-/* ---------- Dados fictícios ---------- */
+/* ---------- Catálogo (alumínio, MDF e HDF) ---------- */
 
-const chapas = [
-  { id: 1, nome: "Chapa Alumínio Natural", corNome: "Natural", corHex: "#c0c5cc", espessuraMm: 1.2, tamanhoCm: 90, precoPorChapa: 185 },
-  { id: 2, nome: "Chapa Alumínio Branco", corNome: "Branco", corHex: "#f5f5f2", espessuraMm: 1.4, tamanhoCm: 90, precoPorChapa: 210 },
-  { id: 3, nome: "Chapa Alumínio Preto Fosco", corNome: "Preto", corHex: "#2b2b2e", espessuraMm: 2.0, tamanhoCm: 120, precoPorChapa: 340 },
-  { id: 4, nome: "Chapa Alumínio Bronze", corNome: "Bronze", corHex: "#8c6a3f", espessuraMm: 1.2, tamanhoCm: 60, precoPorChapa: 150 },
-  { id: 5, nome: "Chapa Alumínio Anodizado", corNome: "Fosco", corHex: "#9aa2ab", espessuraMm: 1.8, tamanhoCm: 120, precoPorChapa: 295 },
+const catalogo = [
+  { id: 1, nome: "Chapa Alumínio Natural", material: "Alumínio", corNome: "Natural", corHex: "#c0c5cc", espessuraMm: 1.2, tamanhoCm: 90, precoPorChapa: 185 },
+  { id: 2, nome: "Chapa Alumínio Branco", material: "Alumínio", corNome: "Branco", corHex: "#f5f5f2", espessuraMm: 1.4, tamanhoCm: 90, precoPorChapa: 210 },
+  { id: 3, nome: "Chapa Alumínio Preto Fosco", material: "Alumínio", corNome: "Preto", corHex: "#2b2b2e", espessuraMm: 2.0, tamanhoCm: 120, precoPorChapa: 340 },
+  { id: 4, nome: "Chapa Alumínio Bronze", material: "Alumínio", corNome: "Bronze", corHex: "#8c6a3f", espessuraMm: 1.2, tamanhoCm: 60, precoPorChapa: 150 },
+  { id: 5, nome: "MDF Branco TX", material: "MDF", corNome: "Branco", corHex: "#f7f5f0", espessuraMm: 15, tamanhoCm: 275, precoPorChapa: 289 },
+  { id: 6, nome: "MDF Carvalho Mel", material: "MDF", corNome: "Carvalho", corHex: "#b98a4e", espessuraMm: 18, tamanhoCm: 275, precoPorChapa: 365 },
+  { id: 7, nome: "MDF Preto Fosco", material: "MDF", corNome: "Preto", corHex: "#26262a", espessuraMm: 18, tamanhoCm: 275, precoPorChapa: 398 },
+  { id: 8, nome: "HDF Cru 3mm", material: "HDF", corNome: "Cru", corHex: "#caa06a", espessuraMm: 3, tamanhoCm: 275, precoPorChapa: 95 },
+  { id: 9, nome: "HDF Branco 3mm", material: "HDF", corNome: "Branco", corHex: "#f2efe8", espessuraMm: 3, tamanhoCm: 275, precoPorChapa: 119 },
 ];
 
-let pedidos = [
-  {
-    id: 1, nomeCliente: "Marcos Vidraçaria", contato: "(11) 98888-0001",
-    chapa: chapas[0], medidaCorteCm: 35.7, quantidadePecas: 5, status: "em_producao",
-  },
-  {
-    id: 2, nomeCliente: "Construtora Horizonte", contato: "(11) 97777-0002",
-    chapa: chapas[2], medidaCorteCm: 55, quantidadePecas: 8, status: "recebido",
-  },
-];
+const pedidoExemplo = {
+  id: 1,
+  codigo: "AF-DEMO1",
+  nomeCliente: "Marcos Vidraçaria",
+  contato: "(11) 98888-0001",
+  observacao: "Entrega combinada para sexta",
+  status: "em_producao",
+  criadoEm: new Date().toISOString(),
+  itens: [
+    { id: 1, chapa: catalogo[0], medidaCorteCm: 35.7, quantidadePecas: 5, feito: true },
+    { id: 2, chapa: catalogo[5], medidaCorteCm: 120, quantidadePecas: 2, feito: false },
+    { id: 3, chapa: catalogo[7], medidaCorteCm: 90, quantidadePecas: 6, feito: false },
+  ],
+};
 
-let estoque = chapas.map((chapa, i) => ({ id: i + 1, chapaId: chapa.id, chapa, quantidade: 10 }));
+let pedidos = carregar("pedidos", [pedidoExemplo]);
+let estoque = carregar("estoque", catalogo.map((chapa, i) => ({ id: i + 1, chapaId: chapa.id, chapa, quantidade: 10 })));
+
+function gerarCodigo() {
+  const letras = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  let sufixo = "";
+  for (let i = 0; i < 5; i++) sufixo += letras[Math.floor(Math.random() * letras.length)];
+  return "AF-" + sufixo;
+}
 
 /* ---------- Roteador ---------- */
 
-export async function respostaDemo(caminho, metodo = "GET", corpo = null) {
-  await new Promise((r) => setTimeout(r, 200));
+export async function motorLocal(caminho, metodo = "GET", corpo = null) {
+  await new Promise((r) => setTimeout(r, 150));
 
-  if (caminho === "/chapas") return [...chapas];
+  if (caminho === "/chapas") return [...catalogo];
 
   if (caminho === "/pedidos" && metodo === "GET") return [...pedidos];
+
   if (caminho === "/pedidos" && metodo === "POST") {
-    pedidos = [{
+    const codigo = gerarCodigo();
+    const novo = {
       id: Date.now(),
-      nomeCliente: corpo.nomeCliente, contato: corpo.contato,
-      chapa: chapas.find((chapa) => chapa.id === corpo.chapaId),
-      medidaCorteCm: corpo.medidaCorteCm, quantidadePecas: corpo.quantidadePecas,
+      codigo,
+      nomeCliente: corpo.nomeCliente,
+      contato: corpo.contato,
+      observacao: corpo.observacao || "",
       status: "recebido",
-    }, ...pedidos];
-    return { id: Date.now(), mensagem: "Pedido recebido! A esquadria entrará em contato. 🤝 (demo)" };
+      criadoEm: new Date().toISOString(),
+      itens: corpo.itens.map((item, i) => ({
+        id: Date.now() + i,
+        chapa: catalogo.find((chapa) => chapa.id === item.chapaId),
+        medidaCorteCm: item.medidaCorteCm,
+        quantidadePecas: item.quantidadePecas,
+        feito: false,
+      })),
+    };
+    pedidos = [novo, ...pedidos];
+    salvar("pedidos", pedidos);
+    return { id: novo.id, codigo, mensagem: `Pedido recebido! Guarde o código ${codigo} para acompanhar o andamento. 🤝` };
   }
+
+  const acompanhar = caminho.match(/^\/pedidos\/acompanhar\/(.+)$/);
+  if (acompanhar) {
+    const pedido = pedidos.find((p) => p.codigo === decodeURIComponent(acompanhar[1]).trim().toUpperCase());
+    if (!pedido) throw new Error("Código não encontrado — confira com a esquadria");
+    return pedido;
+  }
+
   const status = caminho.match(/^\/pedidos\/(\d+)\/status$/);
   if (status) {
     const pedido = pedidos.find((p) => p.id === Number(status[1]));
     if (pedido) pedido.status = corpo.status;
+    salvar("pedidos", pedidos);
+    return { ok: true };
+  }
+
+  const feito = caminho.match(/^\/pedidos\/(\d+)\/itens\/(\d+)\/feito$/);
+  if (feito) {
+    const pedido = pedidos.find((p) => p.id === Number(feito[1]));
+    const item = pedido?.itens.find((i) => i.id === Number(feito[2]));
+    if (item) item.feito = corpo.feito;
+    salvar("pedidos", pedidos);
     return { ok: true };
   }
 
@@ -142,10 +199,10 @@ export async function respostaDemo(caminho, metodo = "GET", corpo = null) {
   if (caminho === "/estoque" && metodo === "POST") {
     const item = estoque.find((i) => i.chapaId === corpo.chapaId);
     if (item) item.quantidade = corpo.quantidade;
+    salvar("estoque", estoque);
     return { ok: true };
   }
 
-  // Cálculos: a mesma matemática do motor, rodando no navegador
   if (caminho === "/corte") {
     return calcularCorte(corpo.tamanhoChapa, corpo.tamanhoCorte, corpo.kerf || 0);
   }
@@ -153,11 +210,7 @@ export async function respostaDemo(caminho, metodo = "GET", corpo = null) {
     return quantasChapas(corpo.tamanhoChapa, corpo.tamanhoCorte, corpo.pecasNecessarias, corpo.kerf || 0);
   }
   if (caminho === "/corte/plano") {
-    try {
-      return planoDeCorte(corpo.tamanhoChapa, corpo.cortes, corpo.kerf || 0);
-    } catch (erro) {
-      throw new Error(erro.message);
-    }
+    return planoDeCorte(corpo.tamanhoChapa, corpo.cortes, corpo.kerf || 0);
   }
 
   return { ok: true };

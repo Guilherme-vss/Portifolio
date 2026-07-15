@@ -156,6 +156,53 @@ button.perigo { background: #fee2e2; color: var(--vermelho); border: 1.5px solid
   font-size: 0.88rem;
 }
 
+/* ---------- Vitrine de promoções ---------- */
+.promos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 0.9rem;
+  margin-top: 0.6rem;
+}
+
+.promo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border: 1.5px solid var(--borda);
+  border-radius: 12px;
+  padding: 0.9rem;
+  text-decoration: none;
+  color: var(--texto);
+  transition: transform 0.12s, border-color 0.15s;
+}
+
+.promo:hover { transform: translateY(-3px); border-color: var(--verde-600); }
+
+.promo__desconto {
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  background: var(--dourado);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.78rem;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+}
+
+.promo__titulo {
+  font-size: 0.85rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.promo__precos { display: flex; gap: 0.5rem; align-items: baseline; }
+.promo__precos s { color: var(--cinza); font-size: 0.78rem; }
+.promo__precos strong { color: var(--verde-700); font-size: 1.05rem; }
+
 .msg { font-size: 0.84rem; color: var(--verde-700); margin-top: 0.45rem; min-height: 1.1em; }
 .msg.erro { color: var(--vermelho); }
 

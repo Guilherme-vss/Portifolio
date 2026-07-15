@@ -10,12 +10,15 @@ public record OpcoesOrganizacaoDTO(
         boolean limparEspacos,
         boolean removerVazias,
         boolean removerDuplicadas,
-        int colunaOrdenacao,   // -1 = não ordenar
+        boolean removerColunasVazias,
+        boolean textoEmTitulo,     // ana lima → Ana Lima
+        String preencherVaziosCom, // "" = desligado
+        int colunaOrdenacao,       // -1 = não ordenar
         boolean ordemCrescente,
-        int colunaCep          // -1 = não normalizar CEPs
+        int colunaCep              // -1 = não normalizar CEPs
 ) {
     /** Opções padrão: só as limpezas básicas ligadas. */
     public static OpcoesOrganizacaoDTO padrao() {
-        return new OpcoesOrganizacaoDTO(true, true, true, -1, true, -1);
+        return new OpcoesOrganizacaoDTO(true, true, true, false, false, "", -1, true, -1);
     }
 }

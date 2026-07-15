@@ -17,6 +17,9 @@ uma boa oportunidade.
   histórico. Também dá para buscar na hora, com um clique.
 - **Alerta de queda de preço**: o sistema compara com a busca anterior e avisa
   quando o preço caiu (hora de comprar!).
+- **🔥 Vitrine de promoções**: varre as categorias mais buscadas do Mercado
+  Livre e mostra só anúncios com **desconto real** (preço original > atual),
+  ordenados pelo maior desconto.
 - **Dicas mensais com IA**: com uma chave da Anthropic configurada, o Claude
   analisa seus números reais (renda, gastos por categoria, metas) e gera
   conselhos personalizados. **Sem a chave, o app gera dicas por regras** — a

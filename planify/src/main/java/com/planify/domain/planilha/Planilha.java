@@ -98,6 +98,72 @@ public final class Planilha {
         return new Planilha(resultado);
     }
 
+    /** Remove colunas em que TODAS as células de dados estão vazias. */
+    public Planilha semColunasVazias() {
+        if (linhas.isEmpty()) {
+            return this;
+        }
+        int totalColunas = linhas.stream().mapToInt(List::size).max().orElse(0);
+        List<Integer> colunasUteis = new ArrayList<>();
+        for (int coluna = 0; coluna < totalColunas; coluna++) {
+            for (int linha = 1; linha < linhas.size(); linha++) {
+                if (!valorDaColuna(linhas.get(linha), coluna).isBlank()) {
+                    colunasUteis.add(coluna);
+                    break;
+                }
+            }
+            // planilha só com cabeçalho: preserva todas as colunas
+            if (linhas.size() == 1 && !valorDaColuna(linhas.get(0), coluna).isBlank()) {
+                colunasUteis.add(coluna);
+            }
+        }
+        final List<Integer> mantidas = colunasUteis;
+        return new Planilha(linhas.stream()
+                .map(linha -> mantidas.stream().map(c -> valorDaColuna(linha, c)).toList())
+                .toList());
+    }
+
+    /** Deixa o texto das células de dados em formato Título (ana lima → Ana Lima). */
+    public Planilha comTextoEmTitulo() {
+        if (linhas.size() <= 1) {
+            return this;
+        }
+        List<List<String>> resultado = new ArrayList<>();
+        resultado.add(linhas.get(0));
+        for (int i = 1; i < linhas.size(); i++) {
+            resultado.add(linhas.get(i).stream().map(Planilha::paraTitulo).toList());
+        }
+        return new Planilha(resultado);
+    }
+
+    static String paraTitulo(String texto) {
+        if (texto == null || texto.isBlank() || tentarNumero(texto) != null) {
+            return texto; // números e vazios ficam como estão
+        }
+        StringBuilder saida = new StringBuilder(texto.length());
+        boolean inicioDePalavra = true;
+        for (char letra : texto.toLowerCase(Locale.ROOT).toCharArray()) {
+            saida.append(inicioDePalavra ? Character.toUpperCase(letra) : letra);
+            inicioDePalavra = letra == ' ' || letra == '-';
+        }
+        return saida.toString();
+    }
+
+    /** Preenche células vazias das linhas de dados com um valor padrão. */
+    public Planilha comVaziosPreenchidos(String valorPadrao) {
+        if (linhas.size() <= 1 || valorPadrao == null || valorPadrao.isEmpty()) {
+            return this;
+        }
+        List<List<String>> resultado = new ArrayList<>();
+        resultado.add(linhas.get(0));
+        for (int i = 1; i < linhas.size(); i++) {
+            resultado.add(linhas.get(i).stream()
+                    .map(celula -> celula.isBlank() ? valorPadrao : celula)
+                    .toList());
+        }
+        return new Planilha(resultado);
+    }
+
     /** Gera o CSV final (ponto-e-vírgula, o padrão do Excel brasileiro). */
     public String paraCsv() {
         StringBuilder saida = new StringBuilder();

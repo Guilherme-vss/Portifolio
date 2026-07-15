@@ -58,7 +58,7 @@ class OrganizarPlanilhaUseCaseTest {
                 List.of("cliente", "cep"),
                 List.of("Ana", "01310100")
         ));
-        var opcoes = new OpcoesOrganizacaoDTO(false, false, false, -1, true, 1);
+        var opcoes = new OpcoesOrganizacaoDTO(false, false, false, false, false, "", -1, true, 1);
 
         var resposta = useCase.executar("teste.csv", planilha, opcoes);
 
@@ -76,7 +76,7 @@ class OrganizarPlanilhaUseCaseTest {
                 List.of("cliente", "cep"),
                 List.of("Bia", "999")
         ));
-        var opcoes = new OpcoesOrganizacaoDTO(false, false, false, -1, true, 1);
+        var opcoes = new OpcoesOrganizacaoDTO(false, false, false, false, false, "", -1, true, 1);
 
         var resposta = useCase.executar("teste.csv", planilha, opcoes);
 

@@ -19,9 +19,12 @@
         <li><a href="#trajetoria" class="nav__link">Trajetória</a></li>
         <li><a href="#projetos" class="nav__link">Projetos</a></li>
         <li><a href="#habilidades" class="nav__link">Habilidades</a></li>
+        <li><a href="#porque" class="nav__link">Por quê eu?</a></li>
         <li><a href="#contato" class="nav__link">Contato</a></li>
       </ul>
     </nav>
+    <!-- barra que mostra o quanto da página já foi rolado -->
+    <div class="scroll-trilha"><div id="scroll-progresso"></div></div>
   </header>
 
   <main>
@@ -48,10 +51,10 @@
     <!-- ===== Números ===== -->
     <section class="faixa-numeros">
       <div class="container numeros">
-        <div class="numero revelar"><strong>5</strong><span>projetos completos</span></div>
-        <div class="numero revelar"><strong>8+</strong><span>linguagens &amp; frameworks</span></div>
-        <div class="numero revelar"><strong>4</strong><span>bancos de dados</span></div>
-        <div class="numero revelar"><strong>100+</strong><span>testes automatizados</span></div>
+        <div class="numero revelar"><strong class="contador" data-alvo="5">0</strong><span>projetos completos</span></div>
+        <div class="numero revelar"><strong class="contador" data-alvo="8" data-sufixo="+">0</strong><span>linguagens &amp; frameworks</span></div>
+        <div class="numero revelar"><strong class="contador" data-alvo="4">0</strong><span>bancos de dados</span></div>
+        <div class="numero revelar"><strong class="contador" data-alvo="120" data-sufixo="+">0</strong><span>testes automatizados</span></div>
       </div>
     </section>
 
@@ -64,25 +67,25 @@
       </p>
       <div class="linha-tempo">
         <article class="etapa revelar">
-          <span class="etapa__ano">20XX</span>
+          <span class="etapa__ano">20XX</span><span class="etapa__tag">formação</span>
           <h3>🎓 Formação</h3>
           <p>EDITE-ME: onde você estudou ou estuda (curso, instituição, previsão de
             conclusão). Ex.: "Análise e Desenvolvimento de Sistemas — FATEC".</p>
         </article>
         <article class="etapa revelar">
-          <span class="etapa__ano">20XX</span>
+          <span class="etapa__ano">20XX</span><span class="etapa__tag">formação</span>
           <h3>📚 Primeiros passos no código</h3>
           <p>EDITE-ME: como começou a programar, bootcamps e cursos que marcaram
             (Alura, Udemy, DIO...), primeira linguagem.</p>
         </article>
         <article class="etapa revelar">
-          <span class="etapa__ano">20XX</span>
+          <span class="etapa__ano">20XX</span><span class="etapa__tag experiencia">experiência</span>
           <h3>💼 Experiência profissional</h3>
           <p>EDITE-ME: estágio ou emprego, o que você fazia e qual problema resolvia.
             Se ainda não teve, conte um projeto freelance ou voluntário.</p>
         </article>
         <article class="etapa revelar">
-          <span class="etapa__ano">2026</span>
+          <span class="etapa__ano">2026</span><span class="etapa__tag experiencia">experiência</span>
           <h3>🚀 Hoje</h3>
           <p>Construindo um portfólio poliglota — 5 aplicações completas com
             TypeScript, Python, Java, C#, React, Vue, Angular e Svelte — e em busca
@@ -204,6 +207,28 @@
             <li>Docker &amp; docker-compose</li><li>Jenkins (CI/CD)</li><li>Git &amp; GitHub</li>
             <li>Jest • Vitest • Pytest • JUnit • xUnit</li>
           </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Por que me contratar? ===== -->
+    <section id="porque" class="section container">
+      <h2 class="section__title">Por que me contratar?</h2>
+      <p class="section__subtitle">
+        Clique no que a sua equipe precisa agora — eu te mostro como eu resolvo:
+      </p>
+      <div class="porque">
+        <div class="porque__botoes">
+          <button class="porque__botao ativa" data-chave="fullstack">🧩 Alguém completo</button>
+          <button class="porque__botao" data-chave="frontend">🎨 Front-end bonito</button>
+          <button class="porque__botao" data-chave="backend">⚙️ API robusta</button>
+          <button class="porque__botao" data-chave="devops">🚢 Docker &amp; CI/CD</button>
+          <button class="porque__botao" data-chave="aprendizado">📚 Aprende rápido</button>
+        </div>
+        <div class="porque__painel card" id="porque-painel">
+          <h3 id="porque-titulo"></h3>
+          <p id="porque-texto"></p>
+          <p class="porque__prova" id="porque-prova"></p>
         </div>
       </div>
     </section>

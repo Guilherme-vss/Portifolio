@@ -1,14 +1,14 @@
 <script>
   /**
-   * Área do FORNECEDOR: estoque, calculadora de corte e fila de pedidos.
-   * É o chão de fábrica do CorteCerto.
+   * Área do FORNECEDOR: fila de pedidos com checklist de produção
+   * (marca item a item conforme corta), estoque e calculadora.
    */
   import { onMount } from "svelte";
-  import { api, fraseDoCorte, proximoStatus, statusInfo } from "./api.js";
+  import { api, fraseDoCorte, progressoDoPedido, proximoStatus, real, statusInfo } from "./api.js";
 
   let estoque = [];
   let pedidos = [];
-  let chapas = [];
+  let pedidoAberto = null; // id do pedido expandido
 
   // Calculadora rápida
   let calc = { tamanhoChapa: "90", tamanhoCorte: "35.7", kerf: "0" };
@@ -20,18 +20,11 @@
   let plano = null;
   let msgPlano = "";
 
-  // Produção por pedido: id → resultado de chapas-necessárias
-  let producao = {};
-
   onMount(carregarTudo);
 
   async function carregarTudo() {
     try {
-      [estoque, pedidos, chapas] = await Promise.all([
-        api("/estoque"),
-        api("/pedidos"),
-        api("/chapas"),
-      ]);
+      [estoque, pedidos] = await Promise.all([api("/estoque"), api("/pedidos")]);
     } catch {
       /* mensagens específicas aparecem em cada ação */
     }
@@ -68,38 +61,28 @@
     try {
       plano = await api("/corte/plano", {
         metodo: "POST",
-        corpo: {
-          tamanhoChapa: Number(calc.tamanhoChapa),
-          cortes,
-          kerf: Number(calc.kerf) || 0,
-        },
+        corpo: { tamanhoChapa: Number(calc.tamanhoChapa), cortes, kerf: Number(calc.kerf) || 0 },
       });
     } catch (falha) {
       msgPlano = falha.message;
     }
   }
 
-  async function calcularProducao(pedido) {
-    try {
-      const resultado = await api("/corte/chapas-necessarias", {
-        metodo: "POST",
-        corpo: {
-          tamanhoChapa: pedido.chapa.tamanhoCm,
-          tamanhoCorte: pedido.medidaCorteCm,
-          pecasNecessarias: pedido.quantidadePecas,
-        },
-      });
-      producao = { ...producao, [pedido.id]: resultado };
-    } catch (falha) {
-      producao = { ...producao, [pedido.id]: { erro: falha.message } };
-    }
+  async function marcarItem(pedido, item) {
+    await api(`/pedidos/${pedido.id}/itens/${item.id}/feito`, {
+      metodo: "PUT",
+      corpo: { feito: !item.feito },
+    });
+    await carregarTudo();
+    pedidoAberto = pedido.id; // mantém o pedido aberto após atualizar
   }
 
   async function avancarStatus(pedido) {
     const proximo = proximoStatus(pedido.status);
     if (!proximo) return;
     await api(`/pedidos/${pedido.id}/status`, { metodo: "PUT", corpo: { status: proximo } });
-    carregarTudo();
+    await carregarTudo();
+    pedidoAberto = pedido.id;
   }
 
   async function salvarQuantidade(item) {
@@ -110,6 +93,76 @@
     carregarTudo();
   }
 </script>
+
+<!-- ===== Fila de pedidos ===== -->
+<section class="card">
+  <h2>📋 Fila de pedidos</h2>
+  {#if pedidos.length === 0}
+    <em class="dica">Nenhum pedido ainda — compartilhe a aba "Fazer pedido" com seus clientes!</em>
+  {/if}
+
+  {#each pedidos as pedido (pedido.id)}
+    <div style="border:1px solid var(--borda);border-radius:12px;padding:0.9rem 1rem;margin-top:0.8rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.6rem;flex-wrap:wrap">
+        <div>
+          <strong>{pedido.nomeCliente}</strong>
+          <span class="dica"> • {pedido.contato} • código {pedido.codigo}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+          <span class="status-selo" style="background: {statusInfo(pedido.status).cor}">
+            {statusInfo(pedido.status).rotulo}
+          </span>
+          {#if proximoStatus(pedido.status)}
+            <button class="mini suave" on:click={() => avancarStatus(pedido)}>avançar ➡️</button>
+          {/if}
+          <button class="mini" on:click={() => (pedidoAberto = pedidoAberto === pedido.id ? null : pedido.id)}>
+            {pedidoAberto === pedido.id ? "▲ fechar" : `▼ ver ${pedido.itens.length} itens`}
+          </button>
+        </div>
+      </div>
+
+      <div class="progresso"><div style="width: {progressoDoPedido(pedido)}%"></div></div>
+      <small class="dica">{progressoDoPedido(pedido)}% produzido
+        ({pedido.itens.filter((item) => item.feito).length} de {pedido.itens.length} itens)</small>
+
+      {#if pedidoAberto === pedido.id}
+        {#if pedido.observacao}
+          <p class="dica" style="margin-top:0.4rem">📝 {pedido.observacao}</p>
+        {/if}
+        <div class="tabela-wrap">
+          <table>
+            <thead>
+              <tr><th>Feito</th><th>Chapa</th><th>Material</th><th>Corte</th><th>Qtd</th><th>Produção</th></tr>
+            </thead>
+            <tbody>
+              {#each pedido.itens as item (item.id)}
+                <tr style={item.feito ? "opacity:0.55" : ""}>
+                  <td>
+                    <input type="checkbox" checked={item.feito}
+                           on:change={() => marcarItem(pedido, item)}
+                           style="width:19px;height:19px;accent-color:#ea580c" />
+                  </td>
+                  <td>
+                    <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:{item.chapa?.corHex};border:1px solid rgba(0,0,0,0.15);vertical-align:-1px"></span>
+                    {item.chapa?.nome}
+                  </td>
+                  <td>{item.chapa?.material}</td>
+                  <td>{item.quantidadePecas}× {item.medidaCorteCm} cm</td>
+                  <td>{real(item.chapa?.precoPorChapa)} / chapa</td>
+                  <td>
+                    <small class="dica">
+                      {Math.floor(item.chapa?.tamanhoCm / item.medidaCorteCm) || 0} peças/chapa
+                    </small>
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {/if}
+    </div>
+  {/each}
+</section>
 
 <!-- ===== Calculadora de corte ===== -->
 <section class="card">
@@ -162,81 +215,20 @@
   </div>
 </section>
 
-<!-- ===== Pedidos ===== -->
-<section class="card">
-  <h2>📋 Pedidos recebidos</h2>
-  {#if pedidos.length === 0}
-    <em class="dica">Nenhum pedido ainda — compartilhe a aba "Fazer pedido" com seus clientes!</em>
-  {:else}
-    <div class="tabela-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Cliente</th><th>Chapa</th><th>Corte</th><th>Status</th><th>Produção</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each pedidos as pedido}
-            <tr>
-              <td>
-                <strong>{pedido.nomeCliente}</strong><br />
-                <small class="dica">{pedido.contato}</small>
-              </td>
-              <td>
-                {pedido.chapa?.nome}<br />
-                <small class="dica">
-                  {pedido.chapa?.tamanhoCm} cm • {pedido.chapa?.corNome} • {pedido.chapa?.espessuraMm} mm
-                </small>
-              </td>
-              <td>{pedido.quantidadePecas}× {pedido.medidaCorteCm} cm</td>
-              <td>
-                <span class="status-selo" style="background: {statusInfo(pedido.status).cor}">
-                  {statusInfo(pedido.status).rotulo}
-                </span>
-                {#if proximoStatus(pedido.status)}
-                  <br />
-                  <button class="mini suave" style="margin-top: 0.3rem" on:click={() => avancarStatus(pedido)}>
-                    avançar ➡️
-                  </button>
-                {/if}
-              </td>
-              <td>
-                <button class="mini" on:click={() => calcularProducao(pedido)}>🧮 calcular</button>
-                {#if producao[pedido.id]}
-                  {#if producao[pedido.id].erro}
-                    <small class="msg erro">{producao[pedido.id].erro}</small>
-                  {:else if producao[pedido.id].possivel === false}
-                    <small class="msg erro">{producao[pedido.id].motivo}</small>
-                  {:else}
-                    <small class="dica">
-                      {producao[pedido.id].chapas} chapa(s) •
-                      {producao[pedido.id].pecas_por_chapa} peças/chapa •
-                      sobra final {producao[pedido.id].sobra_ultima_chapa} cm
-                    </small>
-                  {/if}
-                {/if}
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
-  {/if}
-</section>
-
 <!-- ===== Estoque ===== -->
 <section class="card">
   <h2>📦 Estoque de chapas</h2>
-  <p class="dica">Tamanho do corte, cor e grossura de cada chapa — edite a quantidade e salve.</p>
+  <p class="dica">Material, tamanho, cor e grossura de cada chapa — edite a quantidade e salve.</p>
   <div class="tabela-wrap">
     <table>
       <thead>
-        <tr><th>Chapa</th><th>Tamanho</th><th>Cor</th><th>Grossura</th><th>Quantidade</th><th></th></tr>
+        <tr><th>Chapa</th><th>Material</th><th>Tamanho</th><th>Cor</th><th>Grossura</th><th>Quantidade</th><th></th></tr>
       </thead>
       <tbody>
-        {#each estoque as item}
+        {#each estoque as item (item.id)}
           <tr>
             <td>{item.chapa?.nome}</td>
+            <td>{item.chapa?.material}</td>
             <td>{item.chapa?.tamanhoCm} cm</td>
             <td>
               <span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:{item.chapa?.corHex};border:1px solid rgba(0,0,0,0.15);vertical-align:-2px"></span>

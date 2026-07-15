@@ -7,6 +7,7 @@ import { ref } from "vue";
 import Resumo from "./components/Resumo.vue";
 import Gastos from "./components/Gastos.vue";
 import Metas from "./components/Metas.vue";
+import Promocoes from "./components/Promocoes.vue";
 import Dicas from "./components/Dicas.vue";
 
 // "sinal" simples para os painéis se atualizarem entre si:
@@ -29,6 +30,7 @@ const atualizar = () => { versao.value++; };
     <Resumo class="largo" :versao="versao" />
     <Gastos @mudou="atualizar" :versao="versao" />
     <Metas @mudou="atualizar" :versao="versao" />
+    <Promocoes class="largo" />
     <Dicas class="largo" />
   </main>
 </template>

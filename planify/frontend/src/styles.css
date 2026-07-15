@@ -152,6 +152,28 @@ th, td {
 th { background: var(--roxo-100); color: var(--roxo-900); position: sticky; top: 0; }
 tr:last-child td { border-bottom: none; }
 
+/* ---------- Barra de progresso do processamento ---------- */
+.progresso-caixa { margin-top: 0.8rem; }
+
+.progresso-barra {
+  background: var(--roxo-100);
+  border-radius: 999px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.progresso-barra > div {
+  background: linear-gradient(90deg, var(--roxo-600), #a78bfa);
+  height: 100%;
+  transition: width 0.2s ease;
+}
+
+.progresso-caixa small { color: var(--cinza); font-size: 0.8rem; }
+
+/* ---------- Botões de exportação ---------- */
+.exportar { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.exportar button { margin-top: 0.6rem; }
+
 .msg { font-size: 0.85rem; color: var(--roxo-700); margin-top: 0.5rem; min-height: 1.1em; }
 .msg.erro { color: var(--vermelho); }
 

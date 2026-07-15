@@ -1,7 +1,12 @@
 """Testes da integração com o Mercado Livre (parte pura, sem rede)."""
 import pytest
 
-from app.services.mercadolivre import extrair_ofertas, menor_preco, montar_url_busca
+from app.services.mercadolivre import (
+    extrair_ofertas,
+    extrair_promocoes,
+    menor_preco,
+    montar_url_busca,
+)
 
 
 class TestMontarUrlBusca:
@@ -41,6 +46,30 @@ class TestExtrairOfertas:
 
     def test_resposta_vazia_da_lista_vazia(self):
         assert extrair_ofertas({}) == []
+
+
+class TestExtrairPromocoes:
+    resposta = {
+        "results": [
+            {"title": "TV com desconto", "price": 1800.0, "original_price": 2400.0,
+             "permalink": "https://ml/tv"},
+            {"title": "Sem promoção", "price": 1000.0, "original_price": None,
+             "permalink": "https://ml/x"},
+            {"title": "Preço subiu (não é promo)", "price": 500.0, "original_price": 400.0,
+             "permalink": "https://ml/y"},
+        ]
+    }
+
+    def test_mantem_so_itens_com_desconto_real(self):
+        promocoes = extrair_promocoes(self.resposta)
+        assert len(promocoes) == 1
+        assert promocoes[0]["titulo"] == "TV com desconto"
+
+    def test_calcula_o_percentual_de_desconto(self):
+        assert extrair_promocoes(self.resposta)[0]["desconto"] == 25
+
+    def test_resposta_vazia_da_lista_vazia(self):
+        assert extrair_promocoes({}) == []
 
 
 class TestMenorPreco:

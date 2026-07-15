@@ -5,6 +5,7 @@
    */
   import Home from "./lib/Home.svelte";
   import Pedido from "./lib/Pedido.svelte";
+  import Acompanhar from "./lib/Acompanhar.svelte";
   import Fornecedor from "./lib/Fornecedor.svelte";
 
   let aba = "inicio";
@@ -12,6 +13,7 @@
   const abas = [
     { id: "inicio", rotulo: "🏠 Início" },
     { id: "pedido", rotulo: "🛒 Fazer pedido" },
+    { id: "acompanhar", rotulo: "📦 Acompanhar" },
     { id: "fornecedor", rotulo: "🏭 Fornecedor" },
   ];
 </script>
@@ -38,6 +40,8 @@
     <Home irParaPedido={() => (aba = "pedido")} />
   {:else if aba === "pedido"}
     <Pedido />
+  {:else if aba === "acompanhar"}
+    <Acompanhar />
   {:else}
     <Fornecedor />
   {/if}

@@ -26,6 +26,19 @@
       👯 Remover linhas duplicadas
     </label>
     <label class="opcao">
+      <input type="checkbox" [(ngModel)]="opcoes.removerColunasVazias" />
+      🗑️ Remover colunas totalmente vazias
+    </label>
+    <label class="opcao">
+      <input type="checkbox" [(ngModel)]="opcoes.textoEmTitulo" />
+      🔠 Padronizar texto em Título (ana lima → Ana Lima)
+    </label>
+    <label class="opcao">
+      <input type="checkbox" [(ngModel)]="opcoes.preencherVazios" />
+      🩹 Preencher células vazias com
+      <input type="text" style="width:80px" [(ngModel)]="opcoes.preencherVaziosCom" [disabled]="!opcoes.preencherVazios" />
+    </label>
+    <label class="opcao">
       <input type="checkbox" [(ngModel)]="opcoes.ordenar" />
       🔤 Ordenar pela coluna nº
       <input type="number" min="0" [(ngModel)]="opcoes.colunaOrdenacao" [disabled]="!opcoes.ordenar" />
@@ -45,6 +58,12 @@
     <button (click)="organizar()" [disabled]="processando">
       {{ processando ? "Organizando..." : "✨ Organizar planilha" }}
     </button>
+
+    <div class="progresso-caixa" *ngIf="progresso > 0">
+      <div class="progresso-barra"><div [style.width.%]="progresso"></div></div>
+      <small>{{ etapaAtual }} ({{ progresso }}%)</small>
+    </div>
+
     <p class="msg" [class.erro]="erro">{{ msg }}</p>
   </section>
 
@@ -70,7 +89,17 @@
       </div>
     </div>
 
-    <button class="verde" (click)="baixarCsv()">⬇️ Baixar CSV organizado</button>
+    <div class="exportar">
+      <button class="verde" (click)="baixarCsv()">⬇️ CSV</button>
+      <button class="verde" (click)="baixarExcel()">📊 Excel (.xls)</button>
+      <button class="verde" (click)="baixarWord()">📝 Word (.doc)</button>
+      <button (click)="enviarParaGoogle('sheets')">☁️ Google Planilhas</button>
+      <button (click)="enviarParaGoogle('docs')">☁️ Google Docs</button>
+    </div>
+    <p class="dica">
+      Excel e Word abrem direto no programa. Os botões do Google baixam o
+      arquivo e já abrem a tela de importação — dois cliques e está no Drive.
+    </p>
 
     <div class="tabela-wrap">
       <table>

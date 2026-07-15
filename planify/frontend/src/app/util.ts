@@ -29,3 +29,28 @@ export function formatarData(iso: string): string {
 export function csvParaBlobParts(csv: string): string[] {
   return ["﻿" + csv];
 }
+
+/**
+ * Converte as linhas numa tabela HTML — é o formato que Excel e Word
+ * abrem nativamente (por isso os botões "Baixar Excel/Word" funcionam
+ * sem nenhuma biblioteca externa).
+ */
+export function tabelaParaHtml(linhas: string[][], titulo = "Planilha organizada"): string {
+  const escapar = (texto: string) =>
+    texto.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  const corpo = linhas
+    .map((linha, indice) => {
+      const marcador = indice === 0 ? "th" : "td";
+      const celulas = linha
+        .map((celula) => `<${marcador} style="border:1px solid #999;padding:4px 8px">${escapar(celula)}</${marcador}>`)
+        .join("");
+      return `<tr>${celulas}</tr>`;
+    })
+    .join("");
+
+  return (
+    `<html><head><meta charset="utf-8"><title>${escapar(titulo)}</title></head>` +
+    `<body><table style="border-collapse:collapse;font-family:Segoe UI,sans-serif;font-size:13px">${corpo}</table></body></html>`
+  );
+}

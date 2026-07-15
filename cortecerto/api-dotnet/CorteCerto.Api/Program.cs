@@ -33,36 +33,61 @@ app.MapGet("/api/saude", () => Results.Ok(new { ok = true, servico = "cortecerto
 app.MapGet("/api/chapas", async (AppDb db) =>
     await db.Chapas.OrderBy(chapa => chapa.Nome).ToListAsync());
 
-// ---------- Pedidos ----------
+// ---------- Pedidos (com lista de itens) ----------
 app.MapPost("/api/pedidos", async (NovoPedidoDto dto, AppDb db) =>
 {
     var erro = Validador.ValidarPedido(dto);
     if (erro != null) return Results.BadRequest(new { erro });
 
-    var chapa = await db.Chapas.FindAsync(dto.ChapaId);
-    if (chapa == null) return Results.BadRequest(new { erro = "Chapa não encontrada no catálogo" });
-    if (dto.MedidaCorteCm > chapa.TamanhoCm)
-        return Results.BadRequest(new { erro = $"O corte ({dto.MedidaCorteCm} cm) é maior que a chapa ({chapa.TamanhoCm} cm)" });
-
     var pedido = new Pedido
     {
+        Codigo = Validador.GerarCodigo(),
         NomeCliente = dto.NomeCliente.Trim(),
         Contato = dto.Contato.Trim(),
-        ChapaId = dto.ChapaId,
-        MedidaCorteCm = dto.MedidaCorteCm,
-        QuantidadePecas = dto.QuantidadePecas,
         Observacao = dto.Observacao?.Trim() ?? "",
     };
+
+    foreach (var item in dto.Itens)
+    {
+        var chapa = await db.Chapas.FindAsync(item.ChapaId);
+        if (chapa == null) return Results.BadRequest(new { erro = "Chapa não encontrada no catálogo" });
+        if (item.MedidaCorteCm > chapa.TamanhoCm)
+            return Results.BadRequest(new { erro = $"O corte ({item.MedidaCorteCm} cm) é maior que a chapa {chapa.Nome} ({chapa.TamanhoCm} cm)" });
+
+        pedido.Itens.Add(new PedidoItem
+        {
+            ChapaId = item.ChapaId,
+            MedidaCorteCm = item.MedidaCorteCm,
+            QuantidadePecas = item.QuantidadePecas,
+        });
+    }
+
     db.Pedidos.Add(pedido);
     await db.SaveChangesAsync();
-    return Results.Created($"/api/pedidos/{pedido.Id}",
-        new { pedido.Id, mensagem = "Pedido recebido! A esquadria entrará em contato. 🤝" });
+    return Results.Created($"/api/pedidos/{pedido.Id}", new
+    {
+        pedido.Id,
+        pedido.Codigo,
+        mensagem = $"Pedido recebido! Guarde o código {pedido.Codigo} para acompanhar o andamento. 🤝",
+    });
 });
 
 app.MapGet("/api/pedidos", async (AppDb db) =>
-    await db.Pedidos.Include(pedido => pedido.Chapa)
+    await db.Pedidos
+        .Include(pedido => pedido.Itens).ThenInclude(item => item.Chapa)
         .OrderByDescending(pedido => pedido.CriadoEm)
         .ToListAsync());
+
+// Acompanhamento público: o cliente digita o código e vê o andamento
+app.MapGet("/api/pedidos/acompanhar/{codigo}", async (string codigo, AppDb db) =>
+{
+    var pedido = await db.Pedidos
+        .Include(p => p.Itens).ThenInclude(item => item.Chapa)
+        .FirstOrDefaultAsync(p => p.Codigo == codigo.Trim().ToUpper());
+    return pedido == null
+        ? Results.NotFound(new { erro = "Código não encontrado — confira com a esquadria" })
+        : Results.Ok(pedido);
+});
 
 app.MapPut("/api/pedidos/{id:int}/status", async (int id, AtualizarStatusDto dto, AppDb db) =>
 {
@@ -73,6 +98,19 @@ app.MapPut("/api/pedidos/{id:int}/status", async (int id, AtualizarStatusDto dto
     if (pedido == null) return Results.NotFound(new { erro = "Pedido não encontrado" });
 
     pedido.Status = dto.Status;
+    await db.SaveChangesAsync();
+    return Results.Ok(new { ok = true });
+});
+
+// O fornecedor marca cada item como feito conforme produz
+app.MapPut("/api/pedidos/{pedidoId:int}/itens/{itemId:int}/feito",
+    async (int pedidoId, int itemId, MarcarFeitoDto dto, AppDb db) =>
+{
+    var item = await db.ItensPedido
+        .FirstOrDefaultAsync(i => i.Id == itemId && i.PedidoId == pedidoId);
+    if (item == null) return Results.NotFound(new { erro = "Item não encontrado" });
+
+    item.Feito = dto.Feito;
     await db.SaveChangesAsync();
     return Results.Ok(new { ok = true });
 });

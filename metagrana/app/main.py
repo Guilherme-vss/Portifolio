@@ -175,6 +175,14 @@ async def buscar_precos(meta_id: str):
     }
 
 
+# ---------- Vitrine de promoções ----------
+
+@app.get("/api/promocoes")
+async def promocoes():
+    """As melhores promoções do dia no Mercado Livre (itens com desconto real)."""
+    return await mercadolivre.buscar_promocoes()
+
+
 # ---------- Dicas (IA ou regras) ----------
 
 @app.get("/api/dicas")

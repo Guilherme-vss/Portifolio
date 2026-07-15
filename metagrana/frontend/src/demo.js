@@ -1,70 +1,114 @@
 /**
- * demo.js — modo demonstração do MetaGrana (GitHub Pages, sem backend).
- * Responde as chamadas da API com dados fictícios mantidos em memória.
+ * demo.js — motor LOCAL do MetaGrana.
+ *
+ * Quando o site roda sem o servidor (ex.: hospedado no GitHub Pages),
+ * este módulo assume o papel da API: gastos e metas ficam salvos no
+ * navegador (localStorage), então o sistema é 100% funcional — o que
+ * você registrar hoje continua aqui amanhã.
  */
 
-export function estaEmDemo() {
+export function usarMotorLocal() {
   return (
     typeof window !== "undefined" &&
     (window.location.hostname.endsWith("github.io") ||
-      window.location.search.includes("demo=1"))
+      window.location.protocol === "file:" ||
+      window.location.search.includes("local=1"))
   );
 }
 
-export function mostrarFaixaDemo() {
-  if (!estaEmDemo() || document.getElementById("faixa-demo")) return;
-  const faixa = document.createElement("div");
-  faixa.id = "faixa-demo";
-  faixa.textContent = "🧪 Demonstração com dados fictícios — o sistema completo (com Mercado Livre e IA) roda com Docker.";
-  faixa.style.cssText =
-    "position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#064e3b;color:#fff;" +
-    "text-align:center;font:600 12px 'Segoe UI',sans-serif;padding:7px 12px;opacity:0.95";
-  document.body.appendChild(faixa);
+/* ---------- Persistência no navegador ---------- */
+
+function carregar(chave, padrao) {
+  try {
+    const bruto = localStorage.getItem("mg-" + chave);
+    return bruto ? JSON.parse(bruto) : padrao;
+  } catch {
+    return padrao;
+  }
 }
 
-/* ---------- Dados fictícios ---------- */
+function salvar(chave, valor) {
+  try {
+    localStorage.setItem("mg-" + chave, JSON.stringify(valor));
+  } catch {
+    /* sem espaço: segue em memória */
+  }
+}
 
-let gastos = [
-  { id: "g1", descricao: "Mercado da semana", categoria: "mercado", valor: 412.35 },
-  { id: "g2", descricao: "Conta de luz", categoria: "contas", valor: 268.9 },
-  { id: "g3", descricao: "Cinema com a família", categoria: "lazer", valor: 120.0 },
-  { id: "g4", descricao: "Gasolina", categoria: "transporte", valor: 250.0 },
-  { id: "g5", descricao: "Farmácia", categoria: "saude", valor: 89.5 },
-];
+/* ---------- Dados iniciais (primeira visita) ---------- */
 
-let metas = [
+const hoje = new Date().toISOString().slice(0, 10);
+
+let gastos = carregar("gastos", [
+  { id: "g1", descricao: "Mercado da semana", categoria: "mercado", valor: 412.35, data: hoje },
+  { id: "g2", descricao: "Conta de luz", categoria: "contas", valor: 268.9, data: hoje },
+  { id: "g3", descricao: "Cinema com a família", categoria: "lazer", valor: 120.0, data: hoje },
+  { id: "g4", descricao: "Gasolina", categoria: "transporte", valor: 250.0, data: hoje },
+]);
+
+let metas = carregar("metas", [
   {
     id: "m1", titulo: "PlayStation 5", marca: "Sony", modelo: "Slim 1TB",
     valor_alvo: 3500, valor_guardado: 2100,
-    melhor_oferta: { preco: 3399.9, data: "2026-07-13" },
+    melhor_oferta: { preco: 3399.9, data: hoje },
   },
   {
     id: "m2", titulo: "Notebook", marca: "Dell", modelo: "Inspiron 15",
     valor_alvo: 4200, valor_guardado: 900,
-    melhor_oferta: { preco: 3989.0, data: "2026-07-13" },
+    melhor_oferta: { preco: 3989.0, data: hoje },
   },
-];
+]);
 
 const ofertasFicticias = [
-  { titulo: "PlayStation 5 Slim 1TB Digital", preco: 3399.9, link: "https://mercadolivre.com.br", condicao: "novo" },
-  { titulo: "PlayStation 5 Slim 1TB c/ 2 jogos", preco: 3549.0, link: "https://mercadolivre.com.br", condicao: "novo" },
-  { titulo: "PlayStation 5 usado 6 meses", preco: 2890.0, link: "https://mercadolivre.com.br", condicao: "usado" },
+  { titulo: "PlayStation 5 Slim 1TB Digital", preco: 3399.9, link: "https://lista.mercadolivre.com.br/playstation-5", condicao: "novo" },
+  { titulo: "PlayStation 5 Slim 1TB c/ 2 jogos", preco: 3549.0, link: "https://lista.mercadolivre.com.br/playstation-5", condicao: "novo" },
+  { titulo: "PlayStation 5 usado 6 meses", preco: 2890.0, link: "https://lista.mercadolivre.com.br/playstation-5", condicao: "usado" },
 ];
 
-function comProgresso(meta) {
-  const percentual = Math.min(100, Math.round((meta.valor_guardado / meta.valor_alvo) * 1000) / 10);
-  return { ...meta, progresso: { percentual, falta: Math.max(0, meta.valor_alvo - meta.valor_guardado), concluida: percentual >= 100 } };
+// Vitrine local: busca real no Mercado Livre direto do navegador quando
+// possível; se o CORS bloquear, mostra a vitrine fixa abaixo.
+const promocoesFixas = [
+  { titulo: "Smart TV 55\" 4K", preco: 2299.0, preco_original: 2899.0, desconto: 21, link: "https://lista.mercadolivre.com.br/smart-tv-55" },
+  { titulo: "Air Fryer 12L forno", preco: 479.9, preco_original: 699.9, desconto: 31, link: "https://lista.mercadolivre.com.br/air-fryer" },
+  { titulo: "Notebook i5 16GB SSD 512", preco: 2599.0, preco_original: 3299.0, desconto: 21, link: "https://lista.mercadolivre.com.br/notebook-i5" },
+  { titulo: "Celular 256GB 5G", preco: 1799.0, preco_original: 2399.0, desconto: 25, link: "https://lista.mercadolivre.com.br/celular-5g" },
+  { titulo: "Console + 2 controles", preco: 3199.0, preco_original: 3999.0, desconto: 20, link: "https://lista.mercadolivre.com.br/playstation-5" },
+  { titulo: "Fone Bluetooth ANC", preco: 249.9, preco_original: 399.9, desconto: 38, link: "https://lista.mercadolivre.com.br/fone-bluetooth" },
+];
+
+async function promocoesAoVivo() {
+  const termos = ["smart tv", "notebook", "air fryer"];
+  const achadas = [];
+  for (const termo of termos) {
+    const url = `https://api.mercadolibre.com/sites/MLB/search?q=${encodeURIComponent(termo)}&limit=8`;
+    const resposta = await fetch(url);
+    if (!resposta.ok) throw new Error("sem acesso");
+    const dados = await resposta.json();
+    for (const item of dados.results || []) {
+      if (item.original_price && item.price && item.original_price > item.price) {
+        achadas.push({
+          titulo: item.title,
+          preco: item.price,
+          preco_original: item.original_price,
+          desconto: Math.round((1 - item.price / item.original_price) * 100),
+          link: item.permalink,
+        });
+      }
+    }
+  }
+  return achadas.sort((a, b) => b.desconto - a.desconto).slice(0, 12);
 }
 
 /* ---------- Roteador ---------- */
 
-export async function respostaDemo(caminho, metodo = "GET", corpo = null) {
-  await new Promise((r) => setTimeout(r, 250));
+export async function motorLocal(caminho, metodo = "GET", corpo = null) {
+  await new Promise((r) => setTimeout(r, 150));
 
   if (caminho.startsWith("/gastos/resumo")) {
     const porCategoria = {};
     for (const gasto of gastos) {
-      porCategoria[gasto.categoria] = Math.round(((porCategoria[gasto.categoria] || 0) + gasto.valor) * 100) / 100;
+      porCategoria[gasto.categoria] =
+        Math.round(((porCategoria[gasto.categoria] || 0) + gasto.valor) * 100) / 100;
     }
     return {
       mes: new Date().toISOString().slice(0, 7),
@@ -74,49 +118,78 @@ export async function respostaDemo(caminho, metodo = "GET", corpo = null) {
   }
   if (caminho.startsWith("/gastos") && metodo === "GET") return [...gastos];
   if (caminho === "/gastos" && metodo === "POST") {
-    const novo = { id: "g" + Date.now(), ...corpo };
-    gastos.unshift(novo);
+    const novo = { id: "g" + Date.now(), data: hoje, ...corpo };
+    gastos = [novo, ...gastos];
+    salvar("gastos", gastos);
     return novo;
   }
   if (caminho.startsWith("/gastos/") && metodo === "DELETE") {
     gastos = gastos.filter((g) => g.id !== caminho.split("/")[2]);
+    salvar("gastos", gastos);
     return { ok: true };
   }
 
-  if (caminho === "/metas" && metodo === "GET") return metas.map(comProgresso);
+  if (caminho === "/metas" && metodo === "GET") {
+    return metas.map((meta) => {
+      const percentual = Math.min(100, Math.round((meta.valor_guardado / meta.valor_alvo) * 1000) / 10);
+      return {
+        ...meta,
+        progresso: {
+          percentual,
+          falta: Math.max(0, meta.valor_alvo - meta.valor_guardado),
+          concluida: percentual >= 100,
+        },
+      };
+    });
+  }
   if (caminho === "/metas" && metodo === "POST") {
-    metas.push({ id: "m" + Date.now(), valor_guardado: 0, ...corpo });
+    metas = [...metas, { id: "m" + Date.now(), valor_guardado: 0, ...corpo }];
+    salvar("metas", metas);
     return { ok: true };
   }
   const guardar = caminho.match(/^\/metas\/(.+)\/guardar$/);
   if (guardar) {
     const meta = metas.find((m) => m.id === guardar[1]);
     if (meta) meta.valor_guardado += corpo.valor;
+    salvar("metas", metas);
     return { ok: true };
   }
   if (caminho.match(/^\/metas\/(.+)\/precos$/)) {
     return {
       ofertas: ofertasFicticias,
       variacao: { anterior: 3549.0, atual: 3399.9, diferenca: -149.1, percentual: -4.2, caiu: true },
-      historico: [
-        { data: "2026-07-11", preco: 3599.0 },
-        { data: "2026-07-12", preco: 3549.0 },
-        { data: "2026-07-13", preco: 3399.9 },
-      ],
+      historico: [],
     };
   }
   if (caminho.startsWith("/metas/") && metodo === "DELETE") {
     metas = metas.filter((m) => m.id !== caminho.split("/")[2]);
+    salvar("metas", metas);
     return { ok: true };
   }
 
+  if (caminho === "/promocoes") {
+    try {
+      const aoVivo = await promocoesAoVivo();
+      if (aoVivo.length > 0) return aoVivo;
+    } catch {
+      /* CORS ou rede: usa a vitrine fixa */
+    }
+    return promocoesFixas;
+  }
+
   if (caminho.startsWith("/dicas")) {
+    const total = gastos.reduce((soma, g) => soma + g.valor, 0);
+    const maior = Object.entries(
+      gastos.reduce((mapa, g) => ({ ...mapa, [g.categoria]: (mapa[g.categoria] || 0) + g.valor }), {})
+    ).sort((a, b) => b[1] - a[1])[0];
     return {
       fonte: "regras",
       dicas: [
-        "✅ Boa! Seus gastos estão abaixo de 50% da renda. É o cenário ideal para acelerar suas metas.",
-        "🔎 Sua maior despesa do mês é com \"mercado\" — reveja se dá para reduzir aí primeiro.",
-        "📉 O preço do PlayStation 5 caiu 4,2% desde ontem — boa hora de comprar!",
+        `📒 Você registrou R$ ${total.toFixed(2).replace(".", ",")} em gastos neste mês — quem mede, controla.`,
+        maior
+          ? `🔎 Sua maior despesa é com "${maior[0]}" (R$ ${maior[1].toFixed(2).replace(".", ",")}). Reveja se dá para reduzir aí primeiro.`
+          : "🎯 Registre seus gastos para receber dicas personalizadas.",
+        "📉 Acompanhe a vitrine de promoções: comprar na queda acelera qualquer meta.",
       ],
     };
   }

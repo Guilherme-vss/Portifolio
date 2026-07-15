@@ -7,7 +7,7 @@ import {
   Processamento,
   RespostaOrganizacao,
 } from "./planilha.service";
-import { arquivoSuportado, csvParaBlobParts, formatarData, percentualMantido } from "./util";
+import { arquivoSuportado, csvParaBlobParts, formatarData, percentualMantido, tabelaParaHtml } from "./util";
 
 /**
  * Componente raiz do Planify: upload + opções → resultado + histórico.
@@ -28,6 +28,10 @@ export class AppComponent {
     limparEspacos: true,
     removerVazias: true,
     removerDuplicadas: true,
+    removerColunasVazias: false,
+    textoEmTitulo: false,
+    preencherVazios: false,
+    preencherVaziosCom: "—",
     ordenar: false,
     colunaOrdenacao: 0,
     ordemCrescente: true,
@@ -40,6 +44,18 @@ export class AppComponent {
   msg = "";
   erro = false;
   processando = false;
+
+  // Barra de progresso: etapas do processamento exibidas ao usuário
+  progresso = 0;
+  etapaAtual = "";
+  private readonly etapas = [
+    "📖 Lendo o arquivo...",
+    "🧹 Limpando os dados...",
+    "🔀 Organizando as linhas...",
+    "📮 Enriquecendo endereços...",
+    "📦 Montando o resultado...",
+  ];
+  private timerProgresso: ReturnType<typeof setInterval> | null = null;
 
   // reexporta os utilitários para o template
   formatarData = formatarData;
@@ -64,16 +80,19 @@ export class AppComponent {
     }
 
     this.processando = true;
-    this.msg = "Organizando... (CEPs podem levar alguns segundos)";
+    this.msg = "";
+    this.iniciarProgresso();
 
     this.servico.organizar(this.arquivo, this.opcoes).subscribe({
       next: (resposta) => {
+        this.concluirProgresso();
         this.resultado = resposta;
         this.msg = "Pronto! ✅";
         this.processando = false;
         this.carregarHistorico();
       },
       error: (falha) => {
+        this.pararProgresso();
         this.erro = true;
         this.msg = falha?.error?.erro ?? "Algo deu errado — o backend está no ar?";
         this.processando = false;
@@ -81,14 +100,83 @@ export class AppComponent {
     });
   }
 
+  /** Progresso animado: avança pelas etapas enquanto o servidor trabalha. */
+  private iniciarProgresso() {
+    this.progresso = 5;
+    this.etapaAtual = this.etapas[0];
+    let indice = 0;
+    this.timerProgresso = setInterval(() => {
+      // sobe suavemente até 90% e espera a resposta para fechar em 100%
+      if (this.progresso < 90) {
+        this.progresso += Math.max(1, Math.round((90 - this.progresso) / 8));
+      }
+      const nova = Math.min(this.etapas.length - 1, Math.floor(this.progresso / 20));
+      if (nova !== indice) {
+        indice = nova;
+        this.etapaAtual = this.etapas[indice];
+      }
+    }, 180);
+  }
+
+  private concluirProgresso() {
+    this.pararProgresso();
+    this.progresso = 100;
+    this.etapaAtual = "✅ Concluído!";
+    setTimeout(() => (this.progresso = 0), 1600);
+  }
+
+  private pararProgresso() {
+    if (this.timerProgresso) {
+      clearInterval(this.timerProgresso);
+      this.timerProgresso = null;
+    }
+  }
+
   baixarCsv() {
     if (!this.resultado) return;
-    const blob = new Blob(csvParaBlobParts(this.resultado.csv), {
-      type: "text/csv;charset=utf-8",
-    });
+    this.baixarBlob(new Blob(csvParaBlobParts(this.resultado.csv), { type: "text/csv;charset=utf-8" }),
+      "planilha-organizada.csv");
+  }
+
+  /** Excel abre tabelas HTML nativamente — export sem biblioteca nenhuma. */
+  baixarExcel() {
+    if (!this.resultado) return;
+    const html = tabelaParaHtml(this.resultado.linhas);
+    this.baixarBlob(new Blob(["﻿" + html], { type: "application/vnd.ms-excel" }),
+      "planilha-organizada.xls");
+  }
+
+  /** O mesmo truque vale para o Word: .doc a partir da tabela HTML. */
+  baixarWord() {
+    if (!this.resultado) return;
+    const html = tabelaParaHtml(this.resultado.linhas);
+    this.baixarBlob(new Blob(["﻿" + html], { type: "application/msword" }),
+      "planilha-organizada.doc");
+  }
+
+  /**
+   * Integração com o Google: baixa o arquivo e abre o Google Planilhas/Docs
+   * na tela de importação — dois cliques e a planilha está na nuvem.
+   * (Upload direto exigiria login OAuth do Google; este fluxo funciona
+   * para qualquer pessoa, sem configurar nada.)
+   */
+  enviarParaGoogle(destino: "sheets" | "docs") {
+    if (!this.resultado) return;
+    if (destino === "sheets") {
+      this.baixarCsv();
+      window.open("https://docs.google.com/spreadsheets/create", "_blank");
+      this.msg = "📄 CSV baixado! No Google Planilhas: Arquivo → Importar → Fazer upload.";
+    } else {
+      this.baixarWord();
+      window.open("https://docs.google.com/document/create", "_blank");
+      this.msg = "📄 Word baixado! No Google Docs: Arquivo → Abrir → Upload.";
+    }
+  }
+
+  private baixarBlob(blob: Blob, nome: string) {
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "planilha-organizada.csv";
+    link.download = nome;
     link.click();
     URL.revokeObjectURL(link.href);
   }
