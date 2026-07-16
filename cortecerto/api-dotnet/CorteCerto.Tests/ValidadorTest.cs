@@ -93,10 +93,10 @@ public class ValidadorTest
     }
 
     [Fact]
-    public void Codigo_de_acompanhamento_tem_formato_AF_XXXXX()
+    public void Codigo_de_acompanhamento_tem_formato_MF_XXXXX()
     {
         var codigo = Validador.GerarCodigo(new Random(42));
-        Assert.Matches(@"^AF-[A-Z2-9]{5}$", codigo);
+        Assert.Matches(@"^MF-[A-Z2-9]{5}$", codigo);
         Assert.DoesNotContain("0", codigo);
         Assert.DoesNotContain("O", codigo.Substring(3));
     }

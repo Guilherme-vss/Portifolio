@@ -6,6 +6,7 @@
    */
   import { onMount } from "svelte";
   import { api, real, validarItem, validarPedido } from "./api.js";
+  import CorteVisual from "./CorteVisual.svelte";
 
   let chapas = [];
   let materiais = [];
@@ -176,6 +177,14 @@
           com sobra de <strong>{simulacao.sobra} cm</strong>
           (aproveitamento de {simulacao.aproveitamento}%).
         </div>
+        {#if simulacao.pecas > 0}
+          <CorteVisual
+            tamanhoChapa={chapaEscolhida.tamanhoCm}
+            cortes={Array(simulacao.pecas).fill(Number(itemAtual.medidaCorteCm))}
+            sobra={simulacao.sobra}
+            cor={chapaEscolhida.corHex}
+          />
+        {/if}
       {:else}
         <p class="dica" style="margin-top:1.6rem">
           👆 Escolha uma chapa e digite a medida: a simulação de corte aparece aqui

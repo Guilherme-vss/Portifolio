@@ -20,7 +20,7 @@ public class Chapa
 public class Pedido
 {
     public int Id { get; set; }
-    public string Codigo { get; set; } = "";           // código de acompanhamento (ex.: AF-3F9K2)
+    public string Codigo { get; set; } = "";           // código de acompanhamento (ex.: MF-3F9K2)
     public string NomeCliente { get; set; } = "";
     public string Contato { get; set; } = "";
     public string Observacao { get; set; } = "";
@@ -115,6 +115,6 @@ public static class Validador
         var aleatorio = sorteio ?? Random.Shared;
         var sufixo = new string(Enumerable.Range(0, 5)
             .Select(_ => letras[aleatorio.Next(letras.Length)]).ToArray());
-        return $"AF-{sufixo}";
+        return $"MF-{sufixo}"; // MF = MadeiraFort
     }
 }

@@ -5,6 +5,7 @@
    */
   import { onMount } from "svelte";
   import { api, fraseDoCorte, progressoDoPedido, proximoStatus, real, statusInfo } from "./api.js";
+  import CorteVisual from "./CorteVisual.svelte";
 
   let estoque = [];
   let pedidos = [];
@@ -187,6 +188,13 @@
           {fraseDoCorte(resultadoCalc, Number(calc.tamanhoChapa), Number(calc.tamanhoCorte))}
           <br /><small>Aproveitamento: {resultadoCalc.aproveitamento}%</small>
         </div>
+        {#if resultadoCalc.pecas > 0}
+          <CorteVisual
+            tamanhoChapa={Number(calc.tamanhoChapa)}
+            cortes={Array(resultadoCalc.pecas).fill(Number(calc.tamanhoCorte))}
+            sobra={resultadoCalc.sobra}
+          />
+        {/if}
       {/if}
     </div>
 

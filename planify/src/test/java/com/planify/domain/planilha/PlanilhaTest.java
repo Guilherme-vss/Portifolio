@@ -154,6 +154,60 @@ class PlanilhaTest {
     }
 
     @Test
+    @DisplayName("Remove acentos das linhas de dados, preservando o cabeçalho")
+    void removeAcentos() {
+        var planilha = Planilha.de(List.of(
+                List.of("descrição"),
+                List.of("café com pão"),
+                List.of("açúcar")
+        ));
+        var resultado = planilha.semAcentos();
+
+        assertEquals("descrição", resultado.linhas().get(0).get(0)); // cabeçalho intacto
+        assertEquals("cafe com pao", resultado.linhas().get(1).get(0));
+        assertEquals("acucar", resultado.linhas().get(2).get(0));
+    }
+
+    @Test
+    @DisplayName("Normaliza moeda para o formato universal 1234.56")
+    void normalizaMoeda() {
+        var planilha = Planilha.de(List.of(
+                List.of("produto", "preco"),
+                List.of("mesa", "R$ 1.234,56"),
+                List.of("cadeira", "89,90")
+        ));
+        var resultado = planilha.comMoedaNormalizada(1);
+
+        assertEquals("1234.56", resultado.linhas().get(1).get(1));
+        assertEquals("89.90", resultado.linhas().get(2).get(1));
+    }
+
+    @Test
+    @DisplayName("Normaliza datas brasileiras para o padrão ISO (AAAA-MM-DD)")
+    void normalizaDatas() {
+        var planilha = Planilha.de(List.of(
+                List.of("evento", "data"),
+                List.of("reunião", "05/03/2026"),
+                List.of("entrega", "15-12-2026")
+        ));
+        var resultado = planilha.comDatasNormalizadas(1);
+
+        assertEquals("2026-03-05", resultado.linhas().get(1).get(1));
+        assertEquals("2026-12-15", resultado.linhas().get(2).get(1));
+    }
+
+    @Test
+    @DisplayName("Coloca uma coluna em maiúsculas e outra em minúsculas")
+    void ajustaCaixaDeUmaColuna() {
+        var planilha = Planilha.de(List.of(
+                List.of("uf", "email"),
+                List.of("sp", "ANA@EMAIL.COM")
+        ));
+        assertEquals("SP", planilha.comColunaMaiuscula(0).linhas().get(1).get(0));
+        assertEquals("ana@email.com", planilha.comColunaMinuscula(1).linhas().get(1).get(1));
+    }
+
+    @Test
     @DisplayName("Gera CSV com ponto-e-vírgula e uma linha por registro")
     void escreveCsv() {
         var planilha = Planilha.de(List.of(List.of("nome", "idade"), List.of("Ana", "30")));

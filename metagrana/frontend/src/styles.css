@@ -208,6 +208,25 @@ button.perigo { background: #fee2e2; color: var(--vermelho); border: 1.5px solid
 
 .fonte-dica { font-size: 0.78rem; color: var(--cinza); margin-top: 0.5rem; }
 
+/* ---------- Cotações ao vivo (robô de dicas) ---------- */
+.cotacoes { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+
+.cotacao {
+  flex: 1;
+  min-width: 150px;
+  border: 1.5px solid var(--borda);
+  border-radius: 12px;
+  padding: 0.65rem 0.85rem;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.cotacao__nome { font-size: 0.78rem; font-weight: 700; color: var(--cinza); }
+.cotacao strong { font-size: 1.05rem; }
+.cotacao__variacao { font-size: 0.78rem; font-weight: 800; }
+.cotacao__variacao.alta { color: var(--verde-700); }
+.cotacao__variacao.baixa { color: var(--vermelho); }
+
 @media (max-width: 760px) {
   .conteudo { grid-template-columns: 1fr; }
   .total-mes { font-size: 1.7rem; }

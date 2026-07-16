@@ -4,6 +4,8 @@ import com.planify.application.dto.MetricasDTO;
 import com.planify.application.dto.OpcoesOrganizacaoDTO;
 import com.planify.application.dto.OrganizacaoResponseDTO;
 import com.planify.application.portas.BuscadorDeEndereco;
+import com.planify.domain.analise.AnalisadorPlanilha;
+import com.planify.domain.analise.ResumoFinanceiro;
 import com.planify.domain.historico.Processamento;
 import com.planify.domain.planilha.Cep;
 import com.planify.domain.planilha.Planilha;
@@ -76,6 +78,31 @@ public class OrganizarPlanilhaUseCase {
             operacoes.append("preencher-vazios ");
         }
 
+        if (opcoes.removerAcentos()) {
+            planilha = planilha.semAcentos();
+            operacoes.append("remover-acentos ");
+        }
+
+        if (opcoes.colunaMoeda() >= 0) {
+            planilha = planilha.comMoedaNormalizada(opcoes.colunaMoeda());
+            operacoes.append("moeda:").append(opcoes.colunaMoeda()).append(" ");
+        }
+
+        if (opcoes.colunaData() >= 0) {
+            planilha = planilha.comDatasNormalizadas(opcoes.colunaData());
+            operacoes.append("data:").append(opcoes.colunaData()).append(" ");
+        }
+
+        if (opcoes.colunaMaiuscula() >= 0) {
+            planilha = planilha.comColunaMaiuscula(opcoes.colunaMaiuscula());
+            operacoes.append("maiuscula:").append(opcoes.colunaMaiuscula()).append(" ");
+        }
+
+        if (opcoes.colunaMinuscula() >= 0) {
+            planilha = planilha.comColunaMinuscula(opcoes.colunaMinuscula());
+            operacoes.append("minuscula:").append(opcoes.colunaMinuscula()).append(" ");
+        }
+
         if (opcoes.colunaOrdenacao() >= 0) {
             planilha = planilha.ordenadaPor(opcoes.colunaOrdenacao(), opcoes.ordemCrescente());
             operacoes.append("ordenar:").append(opcoes.colunaOrdenacao()).append(" ");
@@ -84,6 +111,14 @@ public class OrganizarPlanilhaUseCase {
         if (opcoes.colunaCep() >= 0) {
             planilha = enriquecerComCep(planilha, opcoes.colunaCep());
             operacoes.append("viacep:").append(opcoes.colunaCep()).append(" ");
+        }
+
+        // Análise: o resumo financeiro é opcional (pede as duas colunas);
+        // o perfil das colunas é sempre gerado — é barato e sempre útil.
+        ResumoFinanceiro resumo = null;
+        if (opcoes.colunaCategoria() >= 0 && opcoes.colunaValor() >= 0) {
+            resumo = AnalisadorPlanilha.resumoFinanceiro(planilha, opcoes.colunaCategoria(), opcoes.colunaValor());
+            operacoes.append("resumo-financeiro ");
         }
 
         Processamento registro = historico.save(new Processamento(
@@ -95,7 +130,9 @@ public class OrganizarPlanilhaUseCase {
                 planilha.linhas(),
                 planilha.paraCsv(),
                 new MetricasDTO(linhasAntes, planilha.totalDeLinhas(),
-                        vaziasRemovidas, duplicadasRemovidas, registro.getId()));
+                        vaziasRemovidas, duplicadasRemovidas, registro.getId()),
+                AnalisadorPlanilha.perfilar(planilha),
+                resumo);
     }
 
     /**

@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from . import db
+from .services import cotacoes as servico_cotacoes
 from .services import financas, ia, mercadolivre
 
 app = FastAPI(title="MetaGrana", version="1.0.0")
@@ -187,13 +188,24 @@ async def promocoes():
 
 @app.get("/api/dicas")
 async def dicas(renda: float = 0):
-    """Dicas do mês com base nos números reais do usuário."""
+    """O robô de dicas: cotações AO VIVO (AwesomeAPI) + análise dos seus
+    números reais. Com chave da Anthropic, a IA escreve as dicas; sem
+    chave, as regras de mercado assumem — sempre citando dados de verdade."""
     mes = date.today().strftime("%Y-%m")
     gastos = list(db.gastos.find({"data": {"$regex": f"^{mes}"}}))
     categorias = financas.resumo_por_categoria(gastos)
     total = financas.total_do_mes(gastos)
     metas = list(db.metas.find())
-    return await ia.gerar_dicas(renda, total, categorias, metas)
+
+    cotacoes = await servico_cotacoes.buscar_cotacoes()
+    resultado = await ia.gerar_dicas(renda, total, categorias, metas)
+
+    if resultado["fonte"] != "ia":
+        resultado["fonte"] = "mercado+regras"
+        resultado["dicas"] = servico_cotacoes.dicas_de_mercado(cotacoes) + resultado["dicas"]
+
+    resultado["cotacoes"] = cotacoes
+    return resultado
 
 
 # ---------- Busca diária automática de preços ----------

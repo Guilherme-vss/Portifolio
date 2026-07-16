@@ -1,6 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
-import { Observable, of } from "rxjs";
+import { Observable, from } from "rxjs";
+import { organizarLocal, usarMotorLocal } from "./motor-local";
 
 /** Formatos que a API devolve (espelham os DTOs do backend). */
 export interface Metricas {
@@ -11,10 +12,42 @@ export interface Metricas {
   idProcessamento: number;
 }
 
+export type TipoColuna = "NUMERO" | "MOEDA" | "DATA" | "TEXTO" | "VAZIA";
+
+export interface PerfilColuna {
+  nome: string;
+  tipo: TipoColuna;
+  total: number;
+  preenchidas: number;
+  vazias: number;
+  distintos: number;
+  minimo: number | null;
+  maximo: number | null;
+  media: number | null;
+  soma: number | null;
+  percentualPreenchido: number;
+}
+
+export interface GrupoFinanceiro {
+  categoria: string;
+  soma: number;
+  itens: number;
+  percentual: number;
+}
+
+export interface ResumoFinanceiro {
+  colunaCategoria: string;
+  colunaValor: string;
+  grupos: GrupoFinanceiro[];
+  total: number;
+}
+
 export interface RespostaOrganizacao {
   linhas: string[][];
   csv: string;
   metricas: Metricas;
+  perfil: PerfilColuna[];
+  resumoFinanceiro: ResumoFinanceiro | null;
 }
 
 export interface Processamento {
@@ -27,69 +60,53 @@ export interface Processamento {
 }
 
 export interface Opcoes {
+  // limpeza
   limparEspacos: boolean;
   removerVazias: boolean;
   removerDuplicadas: boolean;
   removerColunasVazias: boolean;
+  removerAcentos: boolean;
   textoEmTitulo: boolean;
   preencherVazios: boolean;
   preencherVaziosCom: string;
+  // normalização por coluna
+  normalizarMoeda: boolean;
+  colunaMoeda: number;
+  normalizarData: boolean;
+  colunaData: number;
+  maiuscula: boolean;
+  colunaMaiuscula: number;
+  minuscula: boolean;
+  colunaMinuscula: number;
+  normalizarCep: boolean;
+  colunaCep: number;
+  // ordenação
   ordenar: boolean;
   colunaOrdenacao: number;
   ordemCrescente: boolean;
-  normalizarCep: boolean;
-  colunaCep: number;
+  // análise financeira
+  resumoFinanceiro: boolean;
+  colunaCategoria: number;
+  colunaValor: number;
 }
 
-/** A demo (GitHub Pages) roda sem backend — respostas fictícias em memória. */
-export function estaEmDemo(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    (window.location.hostname.endsWith("github.io") ||
-      window.location.search.includes("demo=1"))
-  );
-}
+const CHAVE_HISTORICO = "planify-historico";
 
-const LINHAS_DEMO: string[][] = [
-  ["nome", "cidade", "cep", "Cidade (ViaCEP)", "UF (ViaCEP)"],
-  ["Ana Lima", "sao paulo", "01310-100", "São Paulo", "SP"],
-  ["Bruno Souza", "Campinas", "13010-002", "Campinas", "SP"],
-  ["Carla Nunes", "Curitiba", "80010-000", "Curitiba", "PR"],
-  ["Diego Alves", "Recife", "50010-000", "Recife", "PE"],
-];
-
-/** Serviço que conversa com a API do Planify. */
+/** Serviço que conversa com a API do Planify (ou com o motor local no navegador). */
 @Injectable({ providedIn: "root" })
 export class PlanilhaService {
 
   private readonly http = inject(HttpClient);
 
-  private historicoDemo: Processamento[] = [
-    { id: 3, nomeArquivo: "clientes.xlsx", operacoes: "limpar-espacos remover-duplicadas viacep:2",
-      linhasAntes: 128, linhasDepois: 97, processadoEm: "2026-07-12T14:32:00" },
-    { id: 2, nomeArquivo: "vendas.csv", operacoes: "remover-vazias ordenar:1",
-      linhasAntes: 402, linhasDepois: 389, processadoEm: "2026-07-11T09:10:00" },
-    { id: 1, nomeArquivo: "estoque.csv", operacoes: "limpar-espacos remover-vazias remover-duplicadas",
-      linhasAntes: 76, linhasDepois: 60, processadoEm: "2026-07-10T16:45:00" },
-  ];
-
-  constructor() {
-    // sem faixas: a versão local se comporta como o sistema completo
-  }
-
   organizar(arquivo: File, opcoes: Opcoes): Observable<RespostaOrganizacao> {
-    if (estaEmDemo()) {
-      const resposta: RespostaOrganizacao = {
-        linhas: LINHAS_DEMO,
-        csv: LINHAS_DEMO.map((linha) => linha.join(";")).join("\n") + "\n",
-        metricas: { linhasAntes: 9, linhasDepois: 5, vaziasRemovidas: 2, duplicadasRemovidas: 2, idProcessamento: 4 },
-      };
-      this.historicoDemo = [
-        { id: 4, nomeArquivo: arquivo.name, operacoes: "organização local",
-          linhasAntes: 9, linhasDepois: 5, processadoEm: new Date().toISOString() },
-        ...this.historicoDemo,
-      ];
-      return of(resposta);
+    if (usarMotorLocal()) {
+      // Processa o arquivo DE VERDADE no navegador e guarda no histórico local
+      return from(
+        organizarLocal(arquivo, opcoes).then((resposta) => {
+          this.registrarLocal(arquivo.name, resposta);
+          return resposta;
+        })
+      );
     }
 
     const dados = new FormData();
@@ -98,19 +115,53 @@ export class PlanilhaService {
     dados.append("removerVazias", String(opcoes.removerVazias));
     dados.append("removerDuplicadas", String(opcoes.removerDuplicadas));
     dados.append("removerColunasVazias", String(opcoes.removerColunasVazias));
+    dados.append("removerAcentos", String(opcoes.removerAcentos));
     dados.append("textoEmTitulo", String(opcoes.textoEmTitulo));
     dados.append("preencherVaziosCom", opcoes.preencherVazios ? opcoes.preencherVaziosCom : "");
+    dados.append("colunaMoeda", String(opcoes.normalizarMoeda ? opcoes.colunaMoeda : -1));
+    dados.append("colunaData", String(opcoes.normalizarData ? opcoes.colunaData : -1));
+    dados.append("colunaMaiuscula", String(opcoes.maiuscula ? opcoes.colunaMaiuscula : -1));
+    dados.append("colunaMinuscula", String(opcoes.minuscula ? opcoes.colunaMinuscula : -1));
+    dados.append("colunaCep", String(opcoes.normalizarCep ? opcoes.colunaCep : -1));
     dados.append("colunaOrdenacao", String(opcoes.ordenar ? opcoes.colunaOrdenacao : -1));
     dados.append("ordemCrescente", String(opcoes.ordemCrescente));
-    dados.append("colunaCep", String(opcoes.normalizarCep ? opcoes.colunaCep : -1));
+    dados.append("colunaCategoria", String(opcoes.resumoFinanceiro ? opcoes.colunaCategoria : -1));
+    dados.append("colunaValor", String(opcoes.resumoFinanceiro ? opcoes.colunaValor : -1));
     return this.http.post<RespostaOrganizacao>("/api/organizar", dados);
   }
 
   historico(): Observable<Processamento[]> {
-    if (estaEmDemo()) {
-      return of([...this.historicoDemo]);
+    if (usarMotorLocal()) {
+      return from(Promise.resolve(this.lerHistoricoLocal()));
     }
     return this.http.get<Processamento[]>("/api/historico");
   }
 
+  /* ---------- histórico local (localStorage) ---------- */
+
+  private lerHistoricoLocal(): Processamento[] {
+    try {
+      const bruto = localStorage.getItem(CHAVE_HISTORICO);
+      return bruto ? JSON.parse(bruto) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private registrarLocal(nomeArquivo: string, resposta: RespostaOrganizacao): void {
+    const registro: Processamento = {
+      id: Date.now(),
+      nomeArquivo,
+      operacoes: "organização local",
+      linhasAntes: resposta.metricas.linhasAntes,
+      linhasDepois: resposta.metricas.linhasDepois,
+      processadoEm: new Date().toISOString(),
+    };
+    const historico = [registro, ...this.lerHistoricoLocal()].slice(0, 20);
+    try {
+      localStorage.setItem(CHAVE_HISTORICO, JSON.stringify(historico));
+    } catch {
+      /* sem espaço: ignora */
+    }
+  }
 }

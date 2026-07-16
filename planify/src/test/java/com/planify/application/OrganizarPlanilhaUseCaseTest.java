@@ -31,6 +31,18 @@ class OrganizarPlanilhaUseCaseTest {
         return repositorio;
     }
 
+    /** Só a normalização de CEP na coluna informada, o resto desligado. */
+    private OpcoesOrganizacaoDTO apenasCep(int colunaCep) {
+        return new OpcoesOrganizacaoDTO(false, false, false, false, false, false, "",
+                -1, -1, -1, -1, colunaCep, -1, true, -1, -1);
+    }
+
+    /** Só o resumo financeiro (categoria + valor). */
+    private OpcoesOrganizacaoDTO apenasResumo(int colunaCategoria, int colunaValor) {
+        return new OpcoesOrganizacaoDTO(false, false, false, false, false, false, "",
+                -1, -1, -1, -1, -1, -1, true, colunaCategoria, colunaValor);
+    }
+
     @Test
     @DisplayName("Aplica limpeza + duplicadas e mede as métricas corretas")
     void aplicaOperacoesEMedeMetricas() {
@@ -58,9 +70,8 @@ class OrganizarPlanilhaUseCaseTest {
                 List.of("cliente", "cep"),
                 List.of("Ana", "01310100")
         ));
-        var opcoes = new OpcoesOrganizacaoDTO(false, false, false, false, false, "", -1, true, 1);
 
-        var resposta = useCase.executar("teste.csv", planilha, opcoes);
+        var resposta = useCase.executar("teste.csv", planilha, apenasCep(1));
 
         assertEquals(List.of("cliente", "cep", "Cidade (ViaCEP)", "UF (ViaCEP)"),
                 resposta.linhas().get(0));
@@ -76,10 +87,45 @@ class OrganizarPlanilhaUseCaseTest {
                 List.of("cliente", "cep"),
                 List.of("Bia", "999")
         ));
-        var opcoes = new OpcoesOrganizacaoDTO(false, false, false, false, false, "", -1, true, 1);
 
-        var resposta = useCase.executar("teste.csv", planilha, opcoes);
+        var resposta = useCase.executar("teste.csv", planilha, apenasCep(1));
 
         assertEquals(List.of("Bia", "999", "", ""), resposta.linhas().get(1));
+    }
+
+    @Test
+    @DisplayName("Sempre entrega o perfil (profiling) de todas as colunas")
+    void geraPerfilDasColunas() {
+        var useCase = new OrganizarPlanilhaUseCase(buscadorFalso, repositorioFalso());
+        var planilha = Planilha.de(List.of(
+                List.of("nome", "valor"),
+                List.of("Ana", "100"),
+                List.of("Bruno", "200")
+        ));
+
+        var resposta = useCase.executar("teste.csv", planilha, OpcoesOrganizacaoDTO.padrao());
+
+        assertEquals(2, resposta.perfil().size());
+        assertEquals("valor", resposta.perfil().get(1).nome());
+        assertEquals(300.0, resposta.perfil().get(1).soma());
+    }
+
+    @Test
+    @DisplayName("Resumo financeiro agrupa por categoria e soma os valores")
+    void geraResumoFinanceiro() {
+        var useCase = new OrganizarPlanilhaUseCase(buscadorFalso, repositorioFalso());
+        var planilha = Planilha.de(List.of(
+                List.of("categoria", "valor"),
+                List.of("mercado", "100"),
+                List.of("lazer", "50"),
+                List.of("mercado", "R$ 30,00")
+        ));
+
+        var resposta = useCase.executar("teste.csv", planilha, apenasResumo(0, 1));
+
+        assertEquals(180.0, resposta.resumoFinanceiro().total());
+        // maior gasto primeiro: mercado (130) antes de lazer (50)
+        assertEquals("mercado", resposta.resumoFinanceiro().grupos().get(0).categoria());
+        assertEquals(130.0, resposta.resumoFinanceiro().grupos().get(0).soma());
     }
 }

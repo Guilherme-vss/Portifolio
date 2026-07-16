@@ -29,15 +29,31 @@ export class AppComponent {
     removerVazias: true,
     removerDuplicadas: true,
     removerColunasVazias: false,
+    removerAcentos: false,
     textoEmTitulo: false,
     preencherVazios: false,
     preencherVaziosCom: "—",
+    normalizarMoeda: false,
+    colunaMoeda: 0,
+    normalizarData: false,
+    colunaData: 0,
+    maiuscula: false,
+    colunaMaiuscula: 0,
+    minuscula: false,
+    colunaMinuscula: 0,
+    normalizarCep: false,
+    colunaCep: 0,
     ordenar: false,
     colunaOrdenacao: 0,
     ordemCrescente: true,
-    normalizarCep: false,
-    colunaCep: 0,
+    resumoFinanceiro: false,
+    colunaCategoria: 0,
+    colunaValor: 1,
   };
+
+  // controla qual bloco de opções está aberto (acordeão)
+  abaAvancada = false;
+  abaAnalise = false;
 
   resultado: RespostaOrganizacao | null = null;
   historico: Processamento[] = [];
@@ -51,8 +67,8 @@ export class AppComponent {
   private readonly etapas = [
     "📖 Lendo o arquivo...",
     "🧹 Limpando os dados...",
-    "🔀 Organizando as linhas...",
-    "📮 Enriquecendo endereços...",
+    "🔀 Normalizando e organizando...",
+    "🔎 Analisando as colunas...",
     "📦 Montando o resultado...",
   ];
   private timerProgresso: ReturnType<typeof setInterval> | null = null;
@@ -60,6 +76,15 @@ export class AppComponent {
   // reexporta os utilitários para o template
   formatarData = formatarData;
   percentualMantido = percentualMantido;
+
+  /** Rótulo amigável do tipo detectado de cada coluna (para o perfil). */
+  rotuloTipo(tipo: string): string {
+    return { NUMERO: "🔢 número", MOEDA: "💰 moeda", DATA: "📅 data", TEXTO: "🔤 texto", VAZIA: "⬜ vazia" }[tipo] ?? tipo;
+  }
+
+  real(valor: number | null): string {
+    return (valor ?? 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
 
   constructor() {
     this.carregarHistorico();

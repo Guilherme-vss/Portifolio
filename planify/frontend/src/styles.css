@@ -170,6 +170,62 @@ tr:last-child td { border-bottom: none; }
 
 .progresso-caixa small { color: var(--cinza); font-size: 0.8rem; }
 
+/* ---------- Acordeão de opções ---------- */
+.acordeao {
+  margin-top: 0.7rem;
+  width: 100%;
+  text-align: left;
+  background: var(--roxo-50);
+  color: var(--roxo-700);
+  border: 1.5px solid var(--roxo-100);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.acordeao:hover { background: var(--roxo-100); transform: none; }
+
+.acordeao-corpo {
+  border: 1.5px solid var(--roxo-100);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  padding: 0.4rem 0.9rem 0.8rem;
+  margin-bottom: 0.3rem;
+}
+
+/* ---------- Perfil dos dados ---------- */
+.mini-barra {
+  background: var(--roxo-100);
+  border-radius: 999px;
+  height: 7px;
+  overflow: hidden;
+  margin-bottom: 0.15rem;
+  min-width: 80px;
+}
+.mini-barra > div { background: var(--roxo-600); height: 100%; }
+
+/* ---------- Resumo financeiro ---------- */
+.resumo-total {
+  font-size: 1.2rem;
+  margin-bottom: 0.8rem;
+  color: var(--roxo-900);
+}
+.resumo-total strong { color: var(--roxo-600); }
+
+.resumo-grupo { margin-bottom: 0.7rem; }
+.resumo-linha { display: flex; justify-content: space-between; gap: 0.6rem; font-size: 0.9rem; margin-bottom: 0.2rem; }
+.resumo-linha small { color: var(--cinza); }
+
+.resumo-barra {
+  background: var(--roxo-100);
+  border-radius: 999px;
+  height: 12px;
+  overflow: hidden;
+}
+.resumo-barra > div {
+  background: linear-gradient(90deg, var(--roxo-600), #a78bfa);
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
 /* ---------- Botões de exportação ---------- */
 .exportar { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .exportar button { margin-top: 0.6rem; }

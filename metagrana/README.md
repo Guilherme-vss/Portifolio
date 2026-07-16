@@ -20,10 +20,11 @@ uma boa oportunidade.
 - **🔥 Vitrine de promoções**: varre as categorias mais buscadas do Mercado
   Livre e mostra só anúncios com **desconto real** (preço original > atual),
   ordenados pelo maior desconto.
-- **Dicas mensais com IA**: com uma chave da Anthropic configurada, o Claude
-  analisa seus números reais (renda, gastos por categoria, metas) e gera
-  conselhos personalizados. **Sem a chave, o app gera dicas por regras** — a
-  experiência nunca quebra.
+- **🤖 Robô de dicas com cotações ao vivo**: um serviço consome a **AwesomeAPI**
+  (dólar, euro e bitcoin em tempo real) e cruza os números do mercado com os seus
+  gastos — as dicas citam o valor real do dia, nunca conselho genérico. Com uma
+  chave da Anthropic configurada, o **Claude** escreve os conselhos; sem a chave,
+  as regras de mercado assumem. A experiência nunca quebra.
 
 ## 🛠️ Stack
 

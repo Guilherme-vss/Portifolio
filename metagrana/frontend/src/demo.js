@@ -178,18 +178,56 @@ export async function motorLocal(caminho, metodo = "GET", corpo = null) {
   }
 
   if (caminho.startsWith("/dicas")) {
+    // Robô de dicas: busca as cotações AO VIVO na AwesomeAPI (aceita CORS)
+    let cotacoes = [];
+    const dicasMercado = [];
+    try {
+      const resposta = await fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL,BTC-BRL");
+      const dados = await resposta.json();
+      const nomes = { USDBRL: ["💵 Dólar", "dolar"], EURBRL: ["💶 Euro", "euro"], BTCBRL: ["₿ Bitcoin", "bitcoin"] };
+      for (const [chave, [nome, codigo]] of Object.entries(nomes)) {
+        if (!dados[chave]) continue;
+        cotacoes.push({
+          codigo,
+          nome,
+          valor: Math.round(parseFloat(dados[chave].bid) * 100) / 100,
+          variacao_pct: Math.round(parseFloat(dados[chave].pctChange || 0) * 100) / 100,
+        });
+      }
+      const dolar = cotacoes.find((c) => c.codigo === "dolar");
+      if (dolar) {
+        dicasMercado.push(
+          dolar.variacao_pct > 0.5
+            ? `💵 O dólar subiu ${dolar.variacao_pct}% hoje (R$ ${dolar.valor.toFixed(2)}). Importados tendem a encarecer — fique de olho na vitrine de promoções.`
+            : dolar.variacao_pct < -0.5
+              ? `💵 O dólar caiu ${Math.abs(dolar.variacao_pct)}% hoje (R$ ${dolar.valor.toFixed(2)}). Boa janela para metas de eletrônicos e importados.`
+              : `💵 Dólar estável hoje em R$ ${dolar.valor.toFixed(2)} — sem pressa nem pânico para importados.`
+        );
+      }
+      const btc = cotacoes.find((c) => c.codigo === "bitcoin");
+      if (btc && Math.abs(btc.variacao_pct) > 2) {
+        dicasMercado.push(
+          `₿ O bitcoin ${btc.variacao_pct > 0 ? "subiu" : "caiu"} ${Math.abs(btc.variacao_pct)}% nas últimas 24h — reserva de emergência vem antes de investimento volátil.`
+        );
+      }
+    } catch {
+      /* API fora do ar: seguimos só com a análise dos gastos */
+    }
+
     const total = gastos.reduce((soma, g) => soma + g.valor, 0);
     const maior = Object.entries(
       gastos.reduce((mapa, g) => ({ ...mapa, [g.categoria]: (mapa[g.categoria] || 0) + g.valor }), {})
     ).sort((a, b) => b[1] - a[1])[0];
+
     return {
-      fonte: "regras",
+      fonte: "mercado+regras",
+      cotacoes,
       dicas: [
+        ...dicasMercado,
         `📒 Você registrou R$ ${total.toFixed(2).replace(".", ",")} em gastos neste mês — quem mede, controla.`,
         maior
           ? `🔎 Sua maior despesa é com "${maior[0]}" (R$ ${maior[1].toFixed(2).replace(".", ",")}). Reveja se dá para reduzir aí primeiro.`
           : "🎯 Registre seus gastos para receber dicas personalizadas.",
-        "📉 Acompanhe a vitrine de promoções: comprar na queda acelera qualquer meta.",
       ],
     };
   }

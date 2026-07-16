@@ -51,11 +51,18 @@ public class PlanilhaController {
             @RequestParam(defaultValue = "true") boolean removerVazias,
             @RequestParam(defaultValue = "true") boolean removerDuplicadas,
             @RequestParam(defaultValue = "false") boolean removerColunasVazias,
+            @RequestParam(defaultValue = "false") boolean removerAcentos,
             @RequestParam(defaultValue = "false") boolean textoEmTitulo,
             @RequestParam(defaultValue = "") String preencherVaziosCom,
+            @RequestParam(defaultValue = "-1") int colunaMoeda,
+            @RequestParam(defaultValue = "-1") int colunaData,
+            @RequestParam(defaultValue = "-1") int colunaMaiuscula,
+            @RequestParam(defaultValue = "-1") int colunaMinuscula,
+            @RequestParam(defaultValue = "-1") int colunaCep,
             @RequestParam(defaultValue = "-1") int colunaOrdenacao,
             @RequestParam(defaultValue = "true") boolean ordemCrescente,
-            @RequestParam(defaultValue = "-1") int colunaCep) throws IOException {
+            @RequestParam(defaultValue = "-1") int colunaCategoria,
+            @RequestParam(defaultValue = "-1") int colunaValor) throws IOException {
 
         if (arquivo.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("erro", "Envie um arquivo CSV ou XLSX"));
@@ -65,9 +72,11 @@ public class PlanilhaController {
         Planilha planilha = leitor.ler(nome, arquivo.getInputStream());
 
         OpcoesOrganizacaoDTO opcoes = new OpcoesOrganizacaoDTO(
-                limparEspacos, removerVazias, removerDuplicadas,
-                removerColunasVazias, textoEmTitulo, preencherVaziosCom,
-                colunaOrdenacao, ordemCrescente, colunaCep);
+                limparEspacos, removerVazias, removerDuplicadas, removerColunasVazias,
+                removerAcentos, textoEmTitulo, preencherVaziosCom,
+                colunaMoeda, colunaData, colunaMaiuscula, colunaMinuscula, colunaCep,
+                colunaOrdenacao, ordemCrescente,
+                colunaCategoria, colunaValor);
 
         OrganizacaoResponseDTO resposta = organizarPlanilha.executar(nome, planilha, opcoes);
         return ResponseEntity.ok(resposta);

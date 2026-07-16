@@ -16,9 +16,20 @@ Você envia um **CSV** (vírgula ou ponto-e-vírgula) ou **XLSX** (Excel) e esco
   como números** (9 antes de 10, incluindo o formato brasileiro "1.234,56")
 - 📮 **Normalizar CEPs** — padroniza para `00000-000` e **enriquece** a planilha
   com colunas de cidade e UF preenchidas automaticamente pela API do **ViaCEP**
+- 💰 **Normalizar moeda** — "R$ 1.234,56" → `1234.56` (o formato universal de dados)
+- 📅 **Normalizar datas** — "05/03/2026" → `2026-03-05` (ISO), reconhecendo os formatos BR
+- 🔤 **Remover acentos** + **MAIÚSC/minúsc por coluna** — padroniza UF, e-mails e chaves
 
-No final: métricas do antes/depois, prévia dos dados, **download do CSV
-organizado** (com BOM, para o Excel abrir os acentos) e **histórico** no MySQL.
+E, pensando como um **analista de dados**, duas análises automáticas:
+
+- 🔎 **Perfil dos dados (profiling)** — o raio-X de cada coluna: tipo detectado
+  (número, moeda, data, texto), % de preenchimento, valores únicos e, para
+  colunas numéricas, mínimo, máximo, média e soma.
+- 💹 **Resumo financeiro** — agrupa por uma coluna de categoria e soma uma coluna
+  de valores ("quanto gastei por categoria?"), do maior para o menor, com barras.
+
+No final: barra de **progresso por etapas**, métricas do antes/depois, prévia,
+**exportação para CSV, Excel, Word e Google Planilhas/Docs**, e **histórico**.
 
 ## 🏛️ Arquitetura: DDD em camadas (Maven)
 

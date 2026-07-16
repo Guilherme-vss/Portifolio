@@ -28,7 +28,7 @@ window.addEventListener("scroll", () => {
 }, { passive: true });
 
 // ----- Efeito de digitação no papel do hero -----
-const papeis = ["Full-Stack", "Back-end", "Front-end", "Poliglota 🧩"];
+const papeis = ["Full-Stack", "Back-end", "Front-end", "Java + Spring", "Angular"];
 const alvoDigitado = document.getElementById("papel-digitado");
 
 let indicePapel = 0;

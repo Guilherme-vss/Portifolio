@@ -1,4 +1,4 @@
-/**
+﻿/**
  * demo.js — motor LOCAL do CorteCerto.
  *
  * Quando o site roda sem o servidor (ex.: hospedado no GitHub Pages),
@@ -20,7 +20,7 @@ export function usarMotorLocal() {
 
 function carregar(chave, padrao) {
   try {
-    const bruto = localStorage.getItem("cc-" + chave);
+    const bruto = localStorage.getItem("cc2-" + chave);
     return bruto ? JSON.parse(bruto) : padrao;
   } catch {
     return padrao;
@@ -29,7 +29,7 @@ function carregar(chave, padrao) {
 
 function salvar(chave, valor) {
   try {
-    localStorage.setItem("cc-" + chave, JSON.stringify(valor));
+    localStorage.setItem("cc2-" + chave, JSON.stringify(valor));
   } catch {
     /* modo anônimo sem espaço: segue só em memória */
   }
@@ -100,32 +100,32 @@ function arred(numero, casas = 2) {
   return Math.round(numero * fator) / fator;
 }
 
-/* ---------- Catálogo (alumínio, MDF e HDF) ---------- */
+/* ---------- Catálogo (madeira: MDF, HDF e compensado) ---------- */
 
 const catalogo = [
-  { id: 1, nome: "Chapa Alumínio Natural", material: "Alumínio", corNome: "Natural", corHex: "#c0c5cc", espessuraMm: 1.2, tamanhoCm: 90, precoPorChapa: 185 },
-  { id: 2, nome: "Chapa Alumínio Branco", material: "Alumínio", corNome: "Branco", corHex: "#f5f5f2", espessuraMm: 1.4, tamanhoCm: 90, precoPorChapa: 210 },
-  { id: 3, nome: "Chapa Alumínio Preto Fosco", material: "Alumínio", corNome: "Preto", corHex: "#2b2b2e", espessuraMm: 2.0, tamanhoCm: 120, precoPorChapa: 340 },
-  { id: 4, nome: "Chapa Alumínio Bronze", material: "Alumínio", corNome: "Bronze", corHex: "#8c6a3f", espessuraMm: 1.2, tamanhoCm: 60, precoPorChapa: 150 },
-  { id: 5, nome: "MDF Branco TX", material: "MDF", corNome: "Branco", corHex: "#f7f5f0", espessuraMm: 15, tamanhoCm: 275, precoPorChapa: 289 },
-  { id: 6, nome: "MDF Carvalho Mel", material: "MDF", corNome: "Carvalho", corHex: "#b98a4e", espessuraMm: 18, tamanhoCm: 275, precoPorChapa: 365 },
-  { id: 7, nome: "MDF Preto Fosco", material: "MDF", corNome: "Preto", corHex: "#26262a", espessuraMm: 18, tamanhoCm: 275, precoPorChapa: 398 },
-  { id: 8, nome: "HDF Cru 3mm", material: "HDF", corNome: "Cru", corHex: "#caa06a", espessuraMm: 3, tamanhoCm: 275, precoPorChapa: 95 },
-  { id: 9, nome: "HDF Branco 3mm", material: "HDF", corNome: "Branco", corHex: "#f2efe8", espessuraMm: 3, tamanhoCm: 275, precoPorChapa: 119 },
+  { id: 1, nome: "MDF Branco TX", material: "MDF", corNome: "Branco", corHex: "#f7f5f0", espessuraMm: 15, tamanhoCm: 275, precoPorChapa: 289 },
+  { id: 2, nome: "MDF Branco Ultra", material: "MDF", corNome: "Branco", corHex: "#fbfaf6", espessuraMm: 18, tamanhoCm: 275, precoPorChapa: 329 },
+  { id: 3, nome: "MDF Carvalho Mel", material: "MDF", corNome: "Carvalho", corHex: "#b98a4e", espessuraMm: 18, tamanhoCm: 275, precoPorChapa: 365 },
+  { id: 4, nome: "MDF Nogueira", material: "MDF", corNome: "Nogueira", corHex: "#6b4a2b", espessuraMm: 15, tamanhoCm: 275, precoPorChapa: 349 },
+  { id: 5, nome: "MDF Preto Fosco", material: "MDF", corNome: "Preto", corHex: "#26262a", espessuraMm: 18, tamanhoCm: 275, precoPorChapa: 398 },
+  { id: 6, nome: "MDF Cinza Cristal", material: "MDF", corNome: "Cinza", corHex: "#b9bcc0", espessuraMm: 6, tamanhoCm: 185, precoPorChapa: 189 },
+  { id: 7, nome: "HDF Cru 3mm", material: "HDF", corNome: "Cru", corHex: "#caa06a", espessuraMm: 3, tamanhoCm: 275, precoPorChapa: 95 },
+  { id: 8, nome: "HDF Branco 3mm", material: "HDF", corNome: "Branco", corHex: "#f2efe8", espessuraMm: 3, tamanhoCm: 275, precoPorChapa: 119 },
+  { id: 9, nome: "Compensado Naval", material: "Compensado", corNome: "Natural", corHex: "#c8965a", espessuraMm: 10, tamanhoCm: 220, precoPorChapa: 259 },
 ];
 
 const pedidoExemplo = {
   id: 1,
-  codigo: "AF-DEMO1",
-  nomeCliente: "Marcos Vidraçaria",
+  codigo: "MF-DEMO1",
+  nomeCliente: "Marcos Marcenaria",
   contato: "(11) 98888-0001",
   observacao: "Entrega combinada para sexta",
   status: "em_producao",
   criadoEm: new Date().toISOString(),
   itens: [
-    { id: 1, chapa: catalogo[0], medidaCorteCm: 35.7, quantidadePecas: 5, feito: true },
-    { id: 2, chapa: catalogo[5], medidaCorteCm: 120, quantidadePecas: 2, feito: false },
-    { id: 3, chapa: catalogo[7], medidaCorteCm: 90, quantidadePecas: 6, feito: false },
+    { id: 1, chapa: catalogo[2], medidaCorteCm: 35.7, quantidadePecas: 5, feito: true },
+    { id: 2, chapa: catalogo[0], medidaCorteCm: 120, quantidadePecas: 2, feito: false },
+    { id: 3, chapa: catalogo[6], medidaCorteCm: 90, quantidadePecas: 6, feito: false },
   ],
 };
 
@@ -136,7 +136,7 @@ function gerarCodigo() {
   const letras = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
   let sufixo = "";
   for (let i = 0; i < 5; i++) sufixo += letras[Math.floor(Math.random() * letras.length)];
-  return "AF-" + sufixo;
+  return "MF-" + sufixo;
 }
 
 /* ---------- Roteador ---------- */

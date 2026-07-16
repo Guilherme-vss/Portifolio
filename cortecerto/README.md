@@ -1,9 +1,10 @@
-# ✂️ CorteCerto — sistema para esquadrias (AlumiFort)
+# ✂️ CorteCerto — sistema para marcenaria (MadeiraFort)
 
-Sistema completo para uma empresa de esquadrias de alumínio (a fictícia
-**AlumiFort**): o cliente escolhe a chapa pelo tamanho, cor e grossura e faz o
-pedido pelo site; o fornecedor gerencia o estoque, a fila de produção e — a
-estrela do sistema — calcula os cortes **sem desperdício**.
+Sistema completo para uma marcenaria de chapas de madeira (a fictícia
+**MadeiraFort**), que trabalha com **MDF, HDF e compensado** em várias cores e
+grossuras: o cliente monta uma **lista de cortes** e acompanha o pedido por um
+código; o fornecedor gerencia o estoque, marca cada peça pronta e — a estrela do
+sistema — calcula os cortes **sem desperdício**, com um desenho visual da chapa.
 
 ## 💡 O exemplo que resume tudo
 
@@ -23,7 +24,7 @@ em cada uma e a sobra exata de cada chapa. Dá até para informar o **kerf**
 | 🏠 **Início** | todos | apresentação da empresa + vitrine de produtos (ilustrações em SVG) |
 | 🛒 **Fazer pedido** | cliente | catálogo de **alumínio, MDF e HDF** com filtro por material; monta uma **lista de chapas** (cada uma com cor, grossura, medida e quantidade), vê a **simulação de corte ao vivo**, a estimativa de custo, e recebe um **código de acompanhamento** |
 | 📦 **Acompanhar** | cliente | digita o código e vê o andamento: linha do tempo do status + **checklist item a item** do que já foi cortado |
-| 🏭 **Fornecedor** | esquadria | **fila de pedidos** com barra de progresso e checklist (marca cada item conforme produz), fluxo de status (recebido → em produção → pronto → entregue), calculadora de corte, plano otimizado e **estoque** editável |
+| 🏭 **Fornecedor** | marcenaria | **fila de pedidos** com barra de progresso e checklist (marca cada item conforme produz), fluxo de status (recebido → em produção → pronto → entregue), calculadora de corte, plano otimizado e **estoque** editável |
 
 ## 🛠️ Arquitetura (3 serviços + banco)
 

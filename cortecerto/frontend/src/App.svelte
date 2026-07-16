@@ -22,8 +22,8 @@
   <div class="navbar__marca">
     <img src="icone.svg" alt="" />
     <div>
-      <strong>AlumiFort Esquadrias</strong>
-      <small>corte certo, sem desperdício — com CorteCerto®</small>
+      <strong>MadeiraFort Esquadrias</strong>
+      <small>MDF • HDF • compensado — corte certo, sem desperdício</small>
     </div>
   </div>
   <div class="navbar__abas">
@@ -48,6 +48,6 @@
 </main>
 
 <footer class="rodape">
-  AlumiFort Esquadrias (empresa fictícia de demonstração) — sistema CorteCerto:
+  MadeiraFort Esquadrias (empresa fictícia) — sistema CorteCerto:
   .NET 8 + Python + Svelte + PostgreSQL.
 </footer>

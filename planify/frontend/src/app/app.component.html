@@ -39,20 +39,71 @@
       <input type="text" style="width:80px" [(ngModel)]="opcoes.preencherVaziosCom" [disabled]="!opcoes.preencherVazios" />
     </label>
     <label class="opcao">
-      <input type="checkbox" [(ngModel)]="opcoes.ordenar" />
-      🔤 Ordenar pela coluna nº
-      <input type="number" min="0" [(ngModel)]="opcoes.colunaOrdenacao" [disabled]="!opcoes.ordenar" />
-      <select [(ngModel)]="opcoes.ordemCrescente" [disabled]="!opcoes.ordenar">
-        <option [ngValue]="true">crescente</option>
-        <option [ngValue]="false">decrescente</option>
-      </select>
+      <input type="checkbox" [(ngModel)]="opcoes.removerAcentos" />
+      🔤 Remover acentos (café → cafe) — útil para chaves e buscas
     </label>
-    <label class="opcao">
-      <input type="checkbox" [(ngModel)]="opcoes.normalizarCep" />
-      📮 Normalizar CEPs da coluna nº
-      <input type="number" min="0" [(ngModel)]="opcoes.colunaCep" [disabled]="!opcoes.normalizarCep" />
-      <span class="dica">(adiciona cidade e UF via ViaCEP)</span>
-    </label>
+
+    <!-- Formatação por coluna (acordeão) -->
+    <button type="button" class="acordeao" (click)="abaAvancada = !abaAvancada">
+      {{ abaAvancada ? "▲" : "▼" }} 🧰 Formatação por coluna (moeda, data, maiúsc/minúsc, CEP, ordenar)
+    </button>
+    <div class="acordeao-corpo" *ngIf="abaAvancada">
+      <label class="opcao">
+        <input type="checkbox" [(ngModel)]="opcoes.normalizarMoeda" />
+        💰 Normalizar moeda da coluna nº
+        <input type="number" min="0" [(ngModel)]="opcoes.colunaMoeda" [disabled]="!opcoes.normalizarMoeda" />
+        <span class="dica">(R$ 1.234,56 → 1234.56)</span>
+      </label>
+      <label class="opcao">
+        <input type="checkbox" [(ngModel)]="opcoes.normalizarData" />
+        📅 Normalizar datas da coluna nº
+        <input type="number" min="0" [(ngModel)]="opcoes.colunaData" [disabled]="!opcoes.normalizarData" />
+        <span class="dica">(05/03/2026 → 2026-03-05)</span>
+      </label>
+      <label class="opcao">
+        <input type="checkbox" [(ngModel)]="opcoes.maiuscula" />
+        🔡 MAIÚSCULAS na coluna nº
+        <input type="number" min="0" [(ngModel)]="opcoes.colunaMaiuscula" [disabled]="!opcoes.maiuscula" />
+        <span class="dica">(padronizar UF, siglas)</span>
+      </label>
+      <label class="opcao">
+        <input type="checkbox" [(ngModel)]="opcoes.minuscula" />
+        🔠 minúsculas na coluna nº
+        <input type="number" min="0" [(ngModel)]="opcoes.colunaMinuscula" [disabled]="!opcoes.minuscula" />
+        <span class="dica">(padronizar e-mails)</span>
+      </label>
+      <label class="opcao">
+        <input type="checkbox" [(ngModel)]="opcoes.ordenar" />
+        🔀 Ordenar pela coluna nº
+        <input type="number" min="0" [(ngModel)]="opcoes.colunaOrdenacao" [disabled]="!opcoes.ordenar" />
+        <select [(ngModel)]="opcoes.ordemCrescente" [disabled]="!opcoes.ordenar">
+          <option [ngValue]="true">crescente</option>
+          <option [ngValue]="false">decrescente</option>
+        </select>
+      </label>
+      <label class="opcao">
+        <input type="checkbox" [(ngModel)]="opcoes.normalizarCep" />
+        📮 Normalizar CEPs da coluna nº
+        <input type="number" min="0" [(ngModel)]="opcoes.colunaCep" [disabled]="!opcoes.normalizarCep" />
+        <span class="dica">(adiciona cidade e UF via ViaCEP)</span>
+      </label>
+    </div>
+
+    <!-- Análise financeira (acordeão) -->
+    <button type="button" class="acordeao" (click)="abaAnalise = !abaAnalise">
+      {{ abaAnalise ? "▲" : "▼" }} 📊 Análise financeira (somar valores por categoria)
+    </button>
+    <div class="acordeao-corpo" *ngIf="abaAnalise">
+      <label class="opcao">
+        <input type="checkbox" [(ngModel)]="opcoes.resumoFinanceiro" />
+        💹 Gerar resumo: agrupar pela coluna
+        <input type="number" min="0" [(ngModel)]="opcoes.colunaCategoria" [disabled]="!opcoes.resumoFinanceiro" />
+        e somar a coluna
+        <input type="number" min="0" [(ngModel)]="opcoes.colunaValor" [disabled]="!opcoes.resumoFinanceiro" />
+      </label>
+      <p class="dica">Ex.: categoria = coluna 0 (mercado/lazer/contas), valor = coluna 1 (gastos).</p>
+    </div>
+
     <p class="dica">As colunas contam a partir do 0 (primeira coluna = 0).</p>
 
     <button (click)="organizar()" [disabled]="processando">
@@ -116,6 +167,50 @@
     <p class="dica" *ngIf="resultado.linhas.length > 50">
       Mostrando as 50 primeiras de {{ resultado.linhas.length }} linhas — baixe o CSV completo.
     </p>
+  </section>
+
+  <!-- 2b. Perfil dos dados (data profiling) -->
+  <section class="card" *ngIf="resultado?.perfil?.length">
+    <h2>🔎 Perfil dos dados</h2>
+    <p class="dica">O raio-X de cada coluna: tipo detectado, preenchimento, valores únicos e estatísticas.</p>
+    <div class="tabela-wrap">
+      <table>
+        <tr>
+          <th>Coluna</th><th>Tipo</th><th>Preenchimento</th><th>Únicos</th>
+          <th>Mín</th><th>Máx</th><th>Média</th><th>Soma</th>
+        </tr>
+        <tr *ngFor="let p of resultado!.perfil">
+          <td><strong>{{ p.nome }}</strong></td>
+          <td>{{ rotuloTipo(p.tipo) }}</td>
+          <td>
+            <div class="mini-barra"><div [style.width.%]="p.percentualPreenchido"></div></div>
+            <small>{{ p.preenchidas }}/{{ p.total }} ({{ p.percentualPreenchido }}%)</small>
+          </td>
+          <td>{{ p.distintos }}</td>
+          <td>{{ p.minimo !== null ? p.minimo : "—" }}</td>
+          <td>{{ p.maximo !== null ? p.maximo : "—" }}</td>
+          <td>{{ p.media !== null ? p.media : "—" }}</td>
+          <td>{{ p.soma !== null ? p.soma : "—" }}</td>
+        </tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 2c. Resumo financeiro -->
+  <section class="card" *ngIf="resultado?.resumoFinanceiro as resumo">
+    <h2>💹 Resumo financeiro</h2>
+    <p class="dica">
+      Soma de <strong>{{ resumo.colunaValor }}</strong> agrupada por
+      <strong>{{ resumo.colunaCategoria }}</strong> — do maior para o menor.
+    </p>
+    <div class="resumo-total">Total: <strong>{{ real(resumo.total) }}</strong></div>
+    <div class="resumo-grupo" *ngFor="let g of resumo.grupos">
+      <div class="resumo-linha">
+        <span>{{ g.categoria }} <small>({{ g.itens }} {{ g.itens === 1 ? "item" : "itens" }})</small></span>
+        <strong>{{ real(g.soma) }} · {{ g.percentual }}%</strong>
+      </div>
+      <div class="resumo-barra"><div [style.width.%]="g.percentual"></div></div>
+    </div>
   </section>
 
   <!-- 3. Histórico -->

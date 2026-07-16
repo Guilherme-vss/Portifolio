@@ -1,5 +1,8 @@
 package com.planify.domain.planilha;
 
+import java.text.Normalizer;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -164,6 +167,42 @@ public final class Planilha {
         return new Planilha(resultado);
     }
 
+    /** Remove acentos das células de dados (café → cafe) — ótimo para chaves e buscas. */
+    public Planilha semAcentos() {
+        return mapearDados(Planilha::tirarAcentos);
+    }
+
+    /** Coloca uma coluna específica em MAIÚSCULAS (ex.: padronizar UF, siglas). */
+    public Planilha comColunaMaiuscula(int coluna) {
+        return mapearColuna(coluna, texto -> texto.toUpperCase(Locale.ROOT));
+    }
+
+    /** Coloca uma coluna específica em minúsculas (ex.: padronizar e-mails). */
+    public Planilha comColunaMinuscula(int coluna) {
+        return mapearColuna(coluna, texto -> texto.toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * Normaliza uma coluna de dinheiro: "R$ 1.234,56", "1234,56", "1.234" viram
+     * todos "1234.56" — o formato que qualquer ferramenta de dados entende.
+     * Células que não são dinheiro ficam intactas.
+     */
+    public Planilha comMoedaNormalizada(int coluna) {
+        return mapearColuna(coluna, texto -> {
+            Double valor = tentarNumero(texto.replace("R$", "").trim());
+            return valor == null ? texto : String.format(Locale.US, "%.2f", valor);
+        });
+    }
+
+    /**
+     * Normaliza uma coluna de datas para o padrão ISO (AAAA-MM-DD).
+     * Entende os formatos brasileiros mais comuns: dd/MM/yyyy, dd-MM-yyyy,
+     * dd/MM/yy e a própria ISO. O que não for data reconhecível fica igual.
+     */
+    public Planilha comDatasNormalizadas(int coluna) {
+        return mapearColuna(coluna, Planilha::normalizarData);
+    }
+
     /** Gera o CSV final (ponto-e-vírgula, o padrão do Excel brasileiro). */
     public String paraCsv() {
         StringBuilder saida = new StringBuilder();
@@ -177,6 +216,65 @@ public final class Planilha {
 
     private String valorDaColuna(List<String> linha, int coluna) {
         return coluna >= 0 && coluna < linha.size() ? linha.get(coluna) : "";
+    }
+
+    /** Aplica uma transformação a todas as células de dados (preserva o cabeçalho). */
+    private Planilha mapearDados(java.util.function.UnaryOperator<String> transformacao) {
+        if (linhas.size() <= 1) {
+            return this;
+        }
+        List<List<String>> resultado = new ArrayList<>();
+        resultado.add(linhas.get(0));
+        for (int i = 1; i < linhas.size(); i++) {
+            resultado.add(linhas.get(i).stream().map(transformacao).toList());
+        }
+        return new Planilha(resultado);
+    }
+
+    /** Aplica uma transformação só a UMA coluna das linhas de dados. */
+    private Planilha mapearColuna(int coluna, java.util.function.UnaryOperator<String> transformacao) {
+        if (linhas.size() <= 1 || coluna < 0) {
+            return this;
+        }
+        List<List<String>> resultado = new ArrayList<>();
+        resultado.add(linhas.get(0));
+        for (int i = 1; i < linhas.size(); i++) {
+            List<String> linha = new ArrayList<>(linhas.get(i));
+            if (coluna < linha.size() && !linha.get(coluna).isBlank()) {
+                linha.set(coluna, transformacao.apply(linha.get(coluna)));
+            }
+            resultado.add(linha);
+        }
+        return new Planilha(resultado);
+    }
+
+    static String tirarAcentos(String texto) {
+        if (texto == null || texto.isBlank()) {
+            return texto;
+        }
+        String decomposto = Normalizer.normalize(texto, Normalizer.Form.NFD);
+        return decomposto.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+    }
+
+    private static final DateTimeFormatter ISO = DateTimeFormatter.ISO_LOCAL_DATE;
+    private static final List<DateTimeFormatter> FORMATOS_DATA = List.of(
+            DateTimeFormatter.ofPattern("dd/MM/yyyy"),
+            DateTimeFormatter.ofPattern("dd-MM-yyyy"),
+            DateTimeFormatter.ofPattern("d/M/yyyy"),
+            DateTimeFormatter.ofPattern("dd/MM/yy"),
+            ISO
+    );
+
+    static String normalizarData(String texto) {
+        String limpo = texto.trim();
+        for (DateTimeFormatter formato : FORMATOS_DATA) {
+            try {
+                return LocalDate.parse(limpo, formato).format(ISO);
+            } catch (Exception ignorada) {
+                // tenta o próximo formato
+            }
+        }
+        return texto; // não é uma data reconhecível
     }
 
     /** Tenta interpretar o texto como número (aceita vírgula decimal brasileira). */

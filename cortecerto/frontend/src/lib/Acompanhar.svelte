@@ -16,7 +16,7 @@
     msg = "";
     pedido = null;
     if (!codigo.trim()) {
-      msg = "Digite o código que você recebeu ao fazer o pedido (ex.: AF-3F9K2)";
+      msg = "Digite o código que você recebeu ao fazer o pedido (ex.: MF-3F9K2)";
       return;
     }
     buscando = true;
@@ -39,7 +39,7 @@
   <div style="display:flex;gap:0.6rem;align-items:flex-end;flex-wrap:wrap">
     <div style="flex:1;min-width:200px">
       <label for="codigo">Código de acompanhamento</label>
-      <input id="codigo" placeholder="AF-XXXXX" bind:value={codigo}
+      <input id="codigo" placeholder="MF-XXXXX" bind:value={codigo}
              on:keydown={(e) => e.key === "Enter" && buscar()}
              style="text-transform:uppercase" />
     </div>
