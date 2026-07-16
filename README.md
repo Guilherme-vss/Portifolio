@@ -18,6 +18,14 @@ mesma stack repetida.
 Cada aplicação tem **cor e ícone próprios**: RotaKids é azul 🔵, MetaGrana é
 verde 🟢, Planify é roxo 🟣 e CorteCerto é laranja 🟠.
 
+## 📐 Como este projeto é construído
+
+As [**regras de trabalho**](REGRAS.md) valem para tudo aqui: cada entrega é avaliada
+por **três frentes** (cliente, usuário e especialista da área), a lógica de negócio
+mora no domínio e é testada isolada, nada é dado como pronto sem ter sido executado,
+e cada área mantém seu próprio registro em [`logs/`](logs/). Acima de todas, a regra
+de ouro: **tudo mais humano**.
+
 ## 🧭 Por onde começar
 
 1. **Nunca usou Docker ou Jenkins?** Leia o [TUTORIAL-DOCKER-JENKINS.md](TUTORIAL-DOCKER-JENKINS.md) —
