@@ -4,6 +4,29 @@ APIs, domínio e regras de negócio. Formato em [`README.md`](README.md).
 
 ---
 
+## 2026-07-16 — RotaKids: camada de confiança + máquina de estados do dia
+
+- **O que mudou:** duas peças novas no domínio (sem tocar em banco/rede):
+  - `src/domain/validacoes.ts` — CPF e CNH pelo **algoritmo oficial** (dígito
+    verificador), categoria D/E obrigatória por lei para escolar, placa antiga e
+    Mercosul, celular BR (DDD + 9), faixa etária (aluno 1–17, motorista 21+),
+    validade de CNH com aviso de 30 dias. Cadastros devolvem **todos os erros de
+    uma vez**, campo a campo.
+  - `src/domain/trajeto.ts` — o dia inteiro como máquina de estados:
+    `ida → chamada → volta → encerrado`. Regras vindas da frente do especialista:
+    na volta **só existe quem foi à escola**; a chamada é obrigatória antes de
+    sair; criança na van na volta é **vermelha** (responsabilidade aberta) e só
+    vira **verde** quando entregue e confirmada.
+- **O que foi testado:** `npm test` — casos felizes, bordas (17 vs 18 anos, 21 vs
+  20, CNH vencendo em 30 dias) e erros que a vida não permite (embarcar quem
+  faltou, embarcar 2x, chegar na escola com criança na rua, sair com chamada pela
+  metade, entregar quem não está na van).
+- **Resultado:** ✅ **75 testes, 0 falhas** (38 validações + 23 trajeto + 14 rota).
+  `npm run build` compila sem erro.
+- **Pendências:** falta a persistência (tabelas de motorista/veículo/trajeto), as
+  rotas HTTP e a UI. Trânsito no mapa depende de chave do TomTom/Mapbox (do
+  Guilherme). Rastreamento ao vivo depende do backend hospedado (Render/Railway).
+
 ## 2026-07-16 — Início do registro por área
 
 - **O que mudou:** adoção do [REGRAS.md](../REGRAS.md); este registro passa a ser
