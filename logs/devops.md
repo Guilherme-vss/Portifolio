@@ -4,6 +4,23 @@ Docker, CI/CD, deploy e publicação. Formato em [`README.md`](README.md).
 
 ---
 
+## 2026-07-16 — Cada projeto em seu próprio repositório + Pages
+
+- **O que mudou:** `gh` CLI instalado (winget) e autenticado. Criados 4 repos
+  públicos com **histórico preservado** — usei `git subtree split --prefix <proj>`
+  em vez de copiar arquivos, então cada repo nasceu com os commits daquele projeto
+  (rotakids 6, metagrana 5, planify 5, cortecerto 4). Cada um ganhou seu próprio
+  branch `gh-pages` (build do front + `.nojekyll`). O portfólio passou a apontar
+  para os Pages e repos individuais.
+- **O que foi testado:** monitor aguardando HTTP 200 em cada Pages + `gh repo list`.
+- **Resultado:** ✅ os 4 no ar:
+  `rotakids` · `metagrana` · `planify` · `cortecerto` → `guilherme-vss.github.io/<nome>/`
+  (todos HTTP 200). Portfólio segue em `/Portifolio/` (200).
+- **Pendências:** o monorepo `Portifolio` ainda contém as 4 pastas — a partir de
+  agora, mudança em projeto vai no repo dele; o monorepo mantém só o portfólio e
+  as demos. **Atenção:** a URL do Pages diferencia maiúsculas (`/Portifolio/`,
+  não `/portifolio/`) — um 404 no meu teste veio disso, não do deploy.
+
 ## 2026-07-16 — Início do registro por área
 
 - **O que mudou:** adoção do [REGRAS.md](../REGRAS.md).
