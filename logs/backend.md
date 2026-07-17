@@ -4,6 +4,36 @@ APIs, domínio e regras de negócio. Formato em [`README.md`](README.md).
 
 ---
 
+## 2026-07-16 — RotaKids: banco completo + rotas do trajeto
+
+- **O que mudou:**
+  - **Esquema novo** (`db/init.sql`): `usuarios` com CPF/nascimento/celular,
+    `motoristas` (CNH) e `veiculos` separados — coluna que nunca se preenche é
+    cheiro de modelagem preguiçosa. `alunos` com responsável + emergência
+    obrigatórios. `trajetos` + `trajeto_alunos` guardam a máquina de estados.
+    **`eventos` é append-only**: é o que responde ao pai "que horas ela embarcou?"
+    e o que protege o motorista. Constraints cobram o que o domínio valida
+    (categoria D/E, falta com motivo, emergência ≠ responsável).
+  - **Rotas:** cadastro completo com todos os erros de uma vez; `/api/trajeto/*`
+    (iniciar, embarcar, concluir-ida, chamada, iniciar-volta, entregar, posicao);
+    `/api/alunos/:id/acompanhar` (linha do tempo do pai); `/api/auth/eu`.
+  - **Bug pego:** `rotas.ts` e `vinculos.ts` consultavam `contato_emergencia` e
+    `u.telefone` — colunas que o esquema novo não tem. TypeScript não vê SQL em
+    string; achei com `grep`, não com o compilador. Corrigido.
+- **O que foi testado:** `npm test` + **`pg-mem`** (Postgres em memória) rodando o
+  `init.sql` de verdade e exercitando as constraints: CNH categoria B rejeitada,
+  emergência igual ao responsável rejeitada, falta sem motivo rejeitada, status/fase
+  inventados rejeitados, veículo com ano/lugares fora da faixa rejeitado.
+- **Resultado:** ✅ **85 testes, 0 falhas** (38 validações + 23 trajeto + 14 rota +
+  10 esquema). `npm run build` limpo.
+- **Pendências — o que NÃO foi executado (sem Docker/Postgres aqui):**
+  - As **rotas HTTP** não rodaram contra um banco real: foram compiladas e
+    revisadas, não exercitadas. Próximo passo natural é um teste de integração.
+  - `pg-mem` **não é o Postgres inteiro** — valida esquema e constraints, mas o
+    teste definitivo continua sendo o container.
+  - Quem já tem o banco antigo precisa de `docker compose down -v` (o esquema
+    mudou; não escrevi migração porque o `init.sql` roda em banco novo).
+
 ## 2026-07-16 — RotaKids: camada de confiança + máquina de estados do dia
 
 - **O que mudou:** duas peças novas no domínio (sem tocar em banco/rede):
