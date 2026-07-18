@@ -4,6 +4,30 @@ Telas, usabilidade e responsividade. Formato em [`README.md`](README.md).
 
 ---
 
+## 2026-07-17 — Planify: hub por tipo de arquivo
+
+- **O que mudou:** a entrada virou um HUB — a pessoa vê a LOGO do que trabalha
+  (Excel, Word, Fotos, Arquivos por data, PDF) e clica.
+  - `tipos-arquivo.ts` — catálogo dos 5 tipos com logo (CSS puro), extensões e
+    operações de cada um.
+  - `arquivo-ops.ts` — operações que rodam 100% no navegador: texto (Título/
+    MAIÚSC/minúsc, numerar, lista→tabela) e **renomear/organizar em lote** que
+    gera um SCRIPT .bat pronto (o navegador não move arquivo, mas entrega o que
+    resolve o trabalho manual).
+  - `app.component` ganhou o hub + tela de texto + tela de arquivos em lote,
+    mantendo o organizador de planilhas completo que já existia.
+- **Decisão honesta (regra 3):** juntar PDF e ler EXIF de foto precisam do
+  desktop — sinalizado na tela, não finjo que roda. O que dá para fazer com
+  segurança no navegador (renomear por padrão, agrupar por data via script)
+  está 100% funcional.
+- **O que foi testado:** vitest (28, +9 de arquivo-ops) + navegador: hub com as
+  5 logos; Documentos formatando "ana lima" → "Ana Lima"; Arquivos renomeando
+  DSC0001.jpg → arquivo-001.jpg com script .bat; organizar por data separando
+  em 2026/07 e 2026/08.
+- **Resultado:** ✅ 28 testes, build limpo (1 warning cosmético NG8107), fluxos
+  confirmados com print.
+- **Pendências:** PDF merge e EXIF ficam para o app de desktop (documentado).
+
 ## 2026-07-17 — MetaGrana: menu de categorias + busca multi-fonte
 
 - **O que mudou:**

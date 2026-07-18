@@ -8,10 +8,23 @@ import {
   RespostaOrganizacao,
 } from "./planilha.service";
 import { arquivoSuportado, csvParaBlobParts, formatarData, percentualMantido, tabelaParaHtml } from "./util";
+import { TIPOS, TipoArquivo } from "./tipos-arquivo";
+import {
+  agruparPorData,
+  aplicarCaixa,
+  gerarNomes,
+  numerarLinhas,
+  scriptOrganizarPorData,
+  scriptRenomear,
+  textoParaTabela,
+} from "./arquivo-ops";
 
 /**
- * Componente raiz do Planify: upload + opções → resultado + histórico.
- * Standalone (Angular 17): sem NgModule, dependências declaradas aqui mesmo.
+ * Componente raiz do Planify: um HUB por tipo de arquivo.
+ *
+ * A pessoa vê a logo do que trabalha (Excel, Word, fotos, PDF, arquivos por
+ * data), clica e cai na ferramenta certa: o organizador de planilhas completo,
+ * o formatador de texto ou o renomeador/organizador de arquivos em lote.
  */
 @Component({
   selector: "app-root",
@@ -22,6 +35,81 @@ import { arquivoSuportado, csvParaBlobParts, formatarData, percentualMantido, ta
 export class AppComponent {
 
   private readonly servico = inject(PlanilhaService);
+
+  /* ---------- Navegação do hub ---------- */
+  readonly TIPOS = TIPOS;
+  tela: "hub" | "planilha" | "texto" | "arquivos" = "hub";
+  tipoAtivo: TipoArquivo | null = null;
+
+  abrirTipo(tipo: TipoArquivo) {
+    this.tipoAtivo = tipo;
+    if (tipo.id === "planilha") this.tela = "planilha";
+    else if (tipo.id === "documento") this.tela = "texto";
+    else this.tela = "arquivos"; // foto, arquivos, pdf
+  }
+
+  voltarAoHub() {
+    this.tela = "hub";
+    this.tipoAtivo = null;
+    this.resultado = null;
+    this.msg = "";
+  }
+
+  /* ---------- Ferramenta de texto (documentos) ---------- */
+  texto = "";
+  textoSaida = "";
+
+  formatarTexto(op: "titulo" | "maiuscula" | "minuscula" | "numerar" | "tabela") {
+    if (!this.texto.trim()) { this.textoSaida = ""; return; }
+    if (op === "numerar") this.textoSaida = numerarLinhas(this.texto);
+    else if (op === "tabela") {
+      this.resultado = {
+        linhas: textoParaTabela(this.texto),
+        csv: textoParaTabela(this.texto).map((l) => l.join(";")).join("\n") + "\n",
+        metricas: { linhasAntes: 0, linhasDepois: 0, vaziasRemovidas: 0, duplicadasRemovidas: 0, idProcessamento: 0 },
+        perfil: [],
+        resumoFinanceiro: null,
+      };
+      this.textoSaida = "";
+    } else this.textoSaida = aplicarCaixa(this.texto, op);
+  }
+
+  copiarTexto() {
+    navigator.clipboard?.writeText(this.textoSaida);
+    this.msg = "Texto copiado! 📋";
+  }
+
+  /* ---------- Ferramenta de arquivos (foto / pdf / lote) ---------- */
+  arquivosLote: File[] = [];
+  padrao = "arquivo-{n3}";
+  renomeados: { de: string; para: string }[] = [];
+  gruposData: { pasta: string; arquivos: string[] }[] = [];
+
+  aoEscolherLote(evento: Event) {
+    this.arquivosLote = Array.from((evento.target as HTMLInputElement).files ?? []);
+    this.renomeados = [];
+    this.gruposData = [];
+  }
+
+  previewRenomear() {
+    this.renomeados = gerarNomes(this.arquivosLote, this.padrao);
+  }
+
+  baixarScriptRenomear() {
+    this.baixarTexto(scriptRenomear(this.renomeados), "renomear.bat");
+  }
+
+  previewPorData() {
+    this.gruposData = agruparPorData(this.arquivosLote);
+  }
+
+  baixarScriptPorData() {
+    this.baixarTexto(scriptOrganizarPorData(this.gruposData), "organizar-por-data.bat");
+  }
+
+  private baixarTexto(conteudo: string, nome: string) {
+    this.baixarBlob(new Blob(["﻿" + conteudo], { type: "text/plain;charset=utf-8" }), nome);
+  }
 
   arquivo: File | null = null;
   opcoes: Opcoes = {

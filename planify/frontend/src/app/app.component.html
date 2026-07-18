@@ -2,11 +2,138 @@
   <img src="favicon.svg" alt="" />
   <div>
     <h1>Planify</h1>
-    <p>Envie uma planilha bagunçada, diga o que quer fazer, receba tudo organizado.</p>
+    <p>Organize qualquer tipo de arquivo — escolha com o que você trabalha.</p>
   </div>
 </header>
 
-<main class="conteudo">
+<!-- ===== HUB: escolha o tipo de arquivo ===== -->
+<main class="conteudo" *ngIf="tela === 'hub'">
+  <section class="card">
+    <h2>Com o que você trabalha hoje?</h2>
+    <p class="dica">Cada tipo de arquivo tem suas ferramentas. Clique no que você precisa organizar.</p>
+    <div class="hub-grade">
+      <button *ngFor="let tipo of TIPOS" class="hub-card" [style.--cor]="tipo.cor" (click)="abrirTipo(tipo)">
+        <span class="hub-logo" [ngClass]="'logo-' + tipo.logo"></span>
+        <strong>{{ tipo.nome }}</strong>
+        <small>{{ tipo.chamada }}</small>
+        <span class="hub-count">{{ tipo.operacoes.length }} ferramentas</span>
+      </button>
+    </div>
+  </section>
+</main>
+
+<!-- ===== Barra de contexto do tipo escolhido ===== -->
+<main class="conteudo" *ngIf="tela !== 'hub' && tipoAtivo">
+  <div class="contexto-tipo" [style.--cor]="tipoAtivo.cor">
+    <button class="voltar-hub" (click)="voltarAoHub()">← Todos os tipos</button>
+    <span class="hub-logo pequeno" [ngClass]="'logo-' + tipoAtivo.logo"></span>
+    <strong>{{ tipoAtivo.nome }}</strong>
+    <small>{{ tipoAtivo.chamada }}</small>
+  </div>
+
+  <!-- ===== TEXTO / documentos ===== -->
+  <ng-container *ngIf="tela === 'texto'">
+    <section class="card">
+      <h2>📝 Formatar texto</h2>
+      <p class="dica">Cole o texto, escolha o que fazer. Roda tudo aqui no navegador — nada é enviado.</p>
+      <textarea [(ngModel)]="texto" rows="7" placeholder="cole aqui sua lista ou texto..."></textarea>
+      <div class="botoes-texto">
+        <button (click)="formatarTexto('titulo')">🔠 Título</button>
+        <button (click)="formatarTexto('maiuscula')">🔡 MAIÚSCULAS</button>
+        <button (click)="formatarTexto('minuscula')">🔤 minúsculas</button>
+        <button (click)="formatarTexto('numerar')">🔢 Numerar</button>
+        <button class="verde" (click)="formatarTexto('tabela')">📊 Virar tabela</button>
+      </div>
+      <div class="saida-texto" *ngIf="textoSaida">
+        <textarea [value]="textoSaida" rows="7" readonly></textarea>
+        <button class="mini" (click)="copiarTexto()">📋 Copiar</button>
+      </div>
+
+      <!-- resultado do "virar tabela" -->
+      <div class="tabela-wrap" *ngIf="resultado?.linhas?.length">
+        <table>
+          <tr *ngFor="let linha of resultado!.linhas; let primeira = first">
+            <ng-container *ngIf="primeira"><th *ngFor="let c of linha">{{ c }}</th></ng-container>
+            <ng-container *ngIf="!primeira"><td *ngFor="let c of linha">{{ c }}</td></ng-container>
+          </tr>
+        </table>
+      </div>
+      <button class="verde" *ngIf="resultado?.linhas?.length" (click)="baixarCsv()">⬇️ Baixar como CSV</button>
+      <p class="msg">{{ msg }}</p>
+    </section>
+  </ng-container>
+
+  <!-- ===== ARQUIVOS EM LOTE (foto / pdf / qualquer) ===== -->
+  <ng-container *ngIf="tela === 'arquivos'">
+    <section class="card">
+      <h2>🏷️ Renomear e organizar em lote</h2>
+      <p class="dica">
+        Escolha os arquivos, defina o padrão e o Planify gera um <strong>script pronto</strong> —
+        você salva na pasta e dá dois cliques. Resolve o trabalho manual sem enviar nada para lugar nenhum.
+      </p>
+      <input type="file" multiple (change)="aoEscolherLote($event)" />
+
+      <div *ngIf="arquivosLote.length" class="lote-info">
+        {{ arquivosLote.length }} arquivo(s) selecionado(s)
+      </div>
+
+      <div class="duas-ferramentas" *ngIf="arquivosLote.length">
+        <!-- Renomear -->
+        <div class="ferramenta">
+          <h3>Renomear por padrão</h3>
+          <label>Padrão do nome</label>
+          <input [(ngModel)]="padrao" placeholder="viagem-{{ '{' }}n3{{ '}' }}" />
+          <p class="dica">
+            Tokens: <code>{{ '{' }}n3{{ '}' }}</code> nº (001), <code>{{ '{' }}data{{ '}' }}</code> data,
+            <code>{{ '{' }}nome{{ '}' }}</code> nome original.
+          </p>
+          <button (click)="previewRenomear()">👁️ Ver prévia</button>
+          <div class="tabela-wrap" *ngIf="renomeados.length">
+            <table>
+              <tr><th>De</th><th>Para</th></tr>
+              <tr *ngFor="let r of renomeados.slice(0, 30)">
+                <td>{{ r.de }}</td><td><strong>{{ r.para }}</strong></td>
+              </tr>
+            </table>
+          </div>
+          <button class="verde" *ngIf="renomeados.length" (click)="baixarScriptRenomear()">
+            ⬇️ Baixar script de renomeação (.bat)
+          </button>
+        </div>
+
+        <!-- Organizar por data -->
+        <div class="ferramenta">
+          <h3>Organizar por data</h3>
+          <p class="dica">Separa os arquivos em pastas AAAA/MM pela data de cada um.</p>
+          <button (click)="previewPorData()">👁️ Ver plano</button>
+          <div *ngIf="gruposData.length" class="grupos-data">
+            <div *ngFor="let g of gruposData" class="grupo-data">
+              📁 <strong>{{ g.pasta }}</strong> — {{ g.arquivos.length }} arquivo(s)
+            </div>
+          </div>
+          <button class="verde" *ngIf="gruposData.length" (click)="baixarScriptPorData()">
+            ⬇️ Baixar script de organização (.bat)
+          </button>
+        </div>
+      </div>
+
+      <p class="dica" style="margin-top:1rem">
+        💡 Juntar PDFs e ler a data das fotos (EXIF) precisam do app de desktop do Planify —
+        aqui trabalhamos com o que o navegador faz com segurança, sem subir seus arquivos.
+      </p>
+    </section>
+  </ng-container>
+</main>
+
+<!-- ===== PLANILHA: o organizador de dados completo ===== -->
+<main class="conteudo" *ngIf="tela === 'planilha'">
+  <div class="contexto-tipo" [style.--cor]="tipoAtivo?.cor" *ngIf="tipoAtivo">
+    <button class="voltar-hub" (click)="voltarAoHub()">← Todos os tipos</button>
+    <span class="hub-logo pequeno logo-excel"></span>
+    <strong>Planilhas</strong>
+    <small>Excel, CSV, Google Planilhas</small>
+  </div>
+
   <!-- 1. Upload + opções -->
   <section class="card">
     <h2>1️⃣ Envie o arquivo e escolha as operações</h2>
