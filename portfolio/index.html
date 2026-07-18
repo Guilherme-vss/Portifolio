@@ -35,14 +35,16 @@
         <h1 class="hero__name">Guilherme <span class="gradiente">Souza</span></h1>
         <h2 class="hero__role">Desenvolvedor <span id="papel-digitado" class="digitado"></span><span class="cursor">|</span></h2>
         <p class="hero__bio">
-          Desenvolvedor full-stack com experiência profissional em Java, Spring Boot,
-          Angular e MySQL. Aqui está meu projeto de estudos: 5 aplicações completas —
-          do banco de dados à interface — cada uma com stack, banco e front-end
-          diferentes, sempre com Docker, testes e pipeline de CI.
+          Desenvolvedor full-stack com <strong>2+ anos de experiência</strong> em Java,
+          Spring Boot, Angular e MySQL. Este é meu projeto de estudos: 4 sistemas
+          completos — do banco à interface — cada um com stack e banco diferentes,
+          regra de negócio testada, Docker e CI. Não é vitrine de bootcamp: é
+          engenharia que aguenta o mundo real.
         </p>
         <div class="hero__actions">
           <a href="#projetos" class="btn btn--primary">🚀 Ver projetos</a>
-          <a href="#contato" class="btn btn--ghost">💬 Fale comigo</a>
+          <a href="curriculo-guilherme-souza.pdf" class="btn btn--cv" download>📄 Baixar currículo</a>
+          <a href="#contato" class="btn btn--ghost">💬 Contato</a>
         </div>
       </div>
       <div class="hero__avatar" aria-hidden="true">👨‍💻</div>
@@ -51,10 +53,10 @@
     <!-- ===== Números ===== -->
     <section class="faixa-numeros">
       <div class="container numeros">
-        <div class="numero revelar"><strong class="contador" data-alvo="5">0</strong><span>projetos completos</span></div>
-        <div class="numero revelar"><strong class="contador" data-alvo="8" data-sufixo="+">0</strong><span>linguagens &amp; frameworks</span></div>
-        <div class="numero revelar"><strong class="contador" data-alvo="4">0</strong><span>bancos de dados</span></div>
-        <div class="numero revelar"><strong class="contador" data-alvo="120" data-sufixo="+">0</strong><span>testes automatizados</span></div>
+        <div class="numero revelar"><strong class="contador" data-alvo="4">0</strong><span>sistemas completos</span></div>
+        <div class="numero revelar"><strong class="contador" data-alvo="9">0</strong><span>linguagens &amp; frameworks</span></div>
+        <div class="numero revelar"><strong class="contador" data-alvo="3">0</strong><span>bancos de dados</span></div>
+        <div class="numero revelar"><strong class="contador" data-alvo="250" data-sufixo="+">0</strong><span>testes automatizados</span></div>
       </div>
     </section>
 
@@ -121,6 +123,7 @@
               rotas de carro pelas ruas (com o tempo de cada uma) e vai marcando quem
               já embarcou 🔵 — tudo calculado via OpenStreetMap.
             </p>
+            <p class="card__tech">⚙️ Destaque: máquina de estados ida→chamada→volta e validação oficial de CPF/CNH (categoria D obrigatória por lei) — o mesmo domínio roda no servidor e no navegador.</p>
             <ul class="card__tags">
               <li>TypeScript</li><li>Node.js</li><li>React</li><li>PostgreSQL</li><li>Leaflet</li>
             </ul>
@@ -134,11 +137,12 @@
             <div class="card__icon">💰</div>
             <h3 class="card__title">MetaGrana</h3>
             <p class="card__desc">
-              Controle de gastos com metas de compra: busca os menores preços e as
-              promoções do dia no Mercado Livre, e um robô de dicas consome cotações
-              ao vivo (dólar, euro, bitcoin) para orientar as decisões — nada de
-              conselho genérico, sempre com dado real.
+              Controle de gastos e caçador de preços com menu por categoria
+              (carro › marca › modelo). Mostra a origem de cada preço, leva direto
+              ao produto e filtra promoções do jeito que a pessoa quer receber.
+              Para todas as idades e bolsos.
             </p>
+            <p class="card__tech">⚙️ Destaque: busca multi-fonte com link direto ao produto e robô que cruza cotações ao vivo (AwesomeAPI) com os gastos do usuário — degradação graciosa quando uma API cai.</p>
             <ul class="card__tags">
               <li>Python</li><li>FastAPI</li><li>Vue 3</li><li>MongoDB</li><li>APIs</li>
             </ul>
@@ -152,11 +156,12 @@
             <div class="card__icon">📊</div>
             <h3 class="card__title">Planify</h3>
             <p class="card__desc">
-              Organizador de planilhas nível analista de dados (arquitetura DDD):
-              limpa, normaliza moeda e datas, tira acentos, faz o perfil de cada
-              coluna e gera resumo financeiro por categoria. Exporta CSV, Excel,
-              Word e Google — tudo com barra de progresso.
+              Central de organização de arquivos: você escolhe a logo do que
+              trabalha (Excel, Word, fotos, PDF) e usa a ferramenta certa —
+              organizador de planilhas nível analista de dados, formatador de
+              texto e renomeador de arquivos em lote que gera o script pronto.
             </p>
+            <p class="card__tech">⚙️ Destaque: Domain-Driven Design em camadas (domínio isolado de HTTP/banco), profiling de colunas e resumo financeiro — hub que trata planilha, texto, fotos e PDF.</p>
             <ul class="card__tags">
               <li>Java 17</li><li>Spring Boot</li><li>Angular 17</li><li>MySQL</li><li>DDD + DTO</li>
             </ul>
@@ -175,6 +180,7 @@
               cada peça pronta. Um desenho mostra a chapa cortada — 90 cm em peças de
               35,7 dá 2 peças e sobra 18,6, calculado por um motor Python.
             </p>
+            <p class="card__tech">⚙️ Destaque: arquitetura de 3 serviços (.NET + microsserviço Python de corte + Svelte), CRM do dono com lucro real e tela de chão de fábrica que registra a peça a mais.</p>
             <ul class="card__tags">
               <li>.NET 8</li><li>C#</li><li>Python</li><li>Svelte</li><li>PostgreSQL</li>
             </ul>
@@ -273,6 +279,11 @@
             <span class="contact__icon">📱</span>
             <span class="contact__label">Celular / WhatsApp</span>
             <span class="contact__value">(11) 96122-1800</span>
+          </a>
+          <a class="contact revelar" href="curriculo-guilherme-souza.pdf" download>
+            <span class="contact__icon">📄</span>
+            <span class="contact__label">Currículo</span>
+            <span class="contact__value">baixar em PDF</span>
           </a>
         </div>
       </div>

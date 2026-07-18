@@ -4,6 +4,25 @@ Telas, usabilidade e responsividade. Formato em [`README.md`](README.md).
 
 ---
 
+## 2026-07-17 — Portfólio: olhar de recrutador
+
+- **O que mudou (avaliado pelas 3 frentes, foco recrutador):**
+  - **Botão "Baixar currículo" (PDF)** no hero e no contato — copiei o CV real
+    para `portfolio/curriculo-guilherme-souza.pdf`. É o que o recrutador procura.
+  - **Números corrigidos e honestos:** 4 sistemas (era 5), 9 linguagens/frameworks,
+    3 bancos (era 4 — só há PostgreSQL/MongoDB/MySQL), **250+ testes** (era 120).
+  - **Destaque técnico por card** — uma linha com o "hard engineering" que um
+    avaliador técnico respeita: máquina de estados + CPF/CNH oficial (RotaKids),
+    busca multi-fonte com degradação graciosa (MetaGrana), DDD em camadas
+    (Planify), arquitetura de 3 serviços + CRM (CorteCerto).
+  - Bio reposicionada: "2+ anos de experiência... não é vitrine de bootcamp,
+    é engenharia que aguenta o mundo real". Descrições dos 4 cards atualizadas
+    para o que os projetos viraram.
+- **O que foi testado:** navegador — hero, contadores (250+), destaque técnico
+  nos cards, download do CV (38kb, application/pdf, HTTP ok).
+- **Resultado:** ✅ tudo confirmado com print.
+- **Pendências:** nenhuma no portfólio.
+
 ## 2026-07-17 — Planify: hub por tipo de arquivo
 
 - **O que mudou:** a entrada virou um HUB — a pessoa vê a LOGO do que trabalha
