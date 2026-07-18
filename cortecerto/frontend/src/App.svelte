@@ -1,21 +1,41 @@
 <script>
   /**
-   * App.svelte — casca do site: barra de navegação + troca de abas.
-   * Início (empresa) | Fazer pedido (cliente) | Fornecedor (produção)
+   * App.svelte — casca do site.
+   *
+   * Duas áreas separadas por quem usa:
+   *   PÚBLICO   Início · Fazer pedido · Acompanhar  (cliente)
+   *   INTERNO   Painel do dono (CRM) · Chão de fábrica (produtor) · Estoque
+   *
+   * O menu interno fica atrás de um botão "Área interna" — o cliente não
+   * precisa ver, e separa visualmente quem vende de quem produz.
    */
   import Home from "./lib/Home.svelte";
   import Pedido from "./lib/Pedido.svelte";
   import Acompanhar from "./lib/Acompanhar.svelte";
   import Fornecedor from "./lib/Fornecedor.svelte";
+  import Dono from "./lib/Dono.svelte";
+  import Produtor from "./lib/Produtor.svelte";
 
   let aba = "inicio";
+  let areaInterna = false;
 
-  const abas = [
+  const abasPublicas = [
     { id: "inicio", rotulo: "🏠 Início" },
     { id: "pedido", rotulo: "🛒 Fazer pedido" },
     { id: "acompanhar", rotulo: "📦 Acompanhar" },
-    { id: "fornecedor", rotulo: "🏭 Fornecedor" },
   ];
+  const abasInternas = [
+    { id: "dono", rotulo: "💼 Painel do dono" },
+    { id: "produtor", rotulo: "🏭 Chão de fábrica" },
+    { id: "estoque", rotulo: "📦 Estoque & cortes" },
+  ];
+
+  $: abas = areaInterna ? abasInternas : abasPublicas;
+
+  function alternarArea() {
+    areaInterna = !areaInterna;
+    aba = areaInterna ? "dono" : "inicio";
+  }
 </script>
 
 <nav class="navbar">
@@ -32,6 +52,9 @@
         {item.rotulo}
       </button>
     {/each}
+    <button class="navbar__area" on:click={alternarArea}>
+      {areaInterna ? "👋 Sair da área interna" : "🔒 Área interna"}
+    </button>
   </div>
 </nav>
 
@@ -42,7 +65,11 @@
     <Pedido />
   {:else if aba === "acompanhar"}
     <Acompanhar />
-  {:else}
+  {:else if aba === "dono"}
+    <Dono />
+  {:else if aba === "produtor"}
+    <Produtor />
+  {:else if aba === "estoque"}
     <Fornecedor />
   {/if}
 </main>

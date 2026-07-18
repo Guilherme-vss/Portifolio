@@ -7,6 +7,8 @@
  * motor Python. Ou seja: o sistema é 100% funcional mesmo sem backend.
  */
 
+import { faturamentoPorMaterial, painelFinanceiro, produtividade } from "./crm.js";
+
 export function usarMotorLocal() {
   return (
     typeof window !== "undefined" &&
@@ -132,6 +134,15 @@ const pedidoExemplo = {
 let pedidos = carregar("pedidos", [pedidoExemplo]);
 let estoque = carregar("estoque", catalogo.map((chapa, i) => ({ id: i + 1, chapaId: chapa.id, chapa, quantidade: 10 })));
 
+// CRM: funcionários e registros de produção (quem cortou quanto).
+let funcionarios = carregar("funcionarios", [
+  { id: 1, nome: "Zé da Serra", funcao: "Operador de serra", admissao: "2022-03-01", ativo: true },
+  { id: 2, nome: "Maria Marcenaria", funcao: "Acabamento", admissao: "2023-08-15", ativo: true },
+]);
+let producao = carregar("producao", [
+  { funcionarioId: 1, pedidoId: 1, itemId: 1, pecas: 5, em: "2026-07-16T10:00:00" },
+]);
+
 function gerarCodigo() {
   const letras = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
   let sufixo = "";
@@ -190,9 +201,46 @@ export async function motorLocal(caminho, metodo = "GET", corpo = null) {
   if (feito) {
     const pedido = pedidos.find((p) => p.id === Number(feito[1]));
     const item = pedido?.itens.find((i) => i.id === Number(feito[2]));
-    if (item) item.feito = corpo.feito;
+    if (item) {
+      item.feito = corpo.feito;
+      // Quem cortou e quantas peças saíram (o produtor pode informar sobra).
+      if (corpo.feito) {
+        const pecas = corpo.pecasCortadas ?? item.quantidadePecas;
+        item.pecasCortadas = pecas;
+        producao = [
+          ...producao.filter((r) => r.itemId !== item.id),
+          { funcionarioId: corpo.funcionarioId ?? null, pedidoId: pedido.id, itemId: item.id, pecas, em: new Date().toISOString() },
+        ];
+        salvar("producao", producao);
+      }
+    }
     salvar("pedidos", pedidos);
     return { ok: true };
+  }
+
+  /* ----- CRM: funcionários ----- */
+  if (caminho === "/funcionarios" && metodo === "GET") return [...funcionarios];
+  if (caminho === "/funcionarios" && metodo === "POST") {
+    const novo = { id: Date.now(), ativo: true, ...corpo };
+    funcionarios = [...funcionarios, novo];
+    salvar("funcionarios", funcionarios);
+    return novo;
+  }
+  const demitir = caminho.match(/^\/funcionarios\/(\d+)$/);
+  if (demitir && metodo === "DELETE") {
+    funcionarios = funcionarios.map((f) => (f.id === Number(demitir[1]) ? { ...f, ativo: false } : f));
+    salvar("funcionarios", funcionarios);
+    return { ok: true };
+  }
+
+  /* ----- CRM: painel financeiro do dono ----- */
+  if (caminho === "/crm/painel") {
+    return {
+      financeiro: painelFinanceiro(pedidos),
+      porMaterial: faturamentoPorMaterial(pedidos),
+      produtividade: produtividade(funcionarios.filter((f) => f.ativo), producao),
+      funcionariosAtivos: funcionarios.filter((f) => f.ativo).length,
+    };
   }
 
   if (caminho === "/estoque" && metodo === "GET") return [...estoque];

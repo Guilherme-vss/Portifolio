@@ -4,6 +4,29 @@ Telas, usabilidade e responsividade. Formato em [`README.md`](README.md).
 
 ---
 
+## 2026-07-17 — CorteCerto: CRM do dono + tela do produtor + placa grande
+
+- **O que mudou:**
+  - `crm.js` — matemática do dono (faturamento só do que foi ENTREGUE, lucro com
+    margem, a receber, ticket médio, faturamento por material, produtividade,
+    conferência de produção). Módulo puro e testado.
+  - **Tela do Dono** (`Dono.svelte`): KPIs, "de onde vem o dinheiro" por material,
+    ranking de produtividade e cadastro/desligamento de funcionários.
+  - **Tela do Produtor** (`Produtor.svelte`): feita para monitor de parede — fila
+    de pedidos, placa GRANDE com a sobra (só produtor vê), campo "cortei peças a
+    mais" que registra a peça extra no estoque, crédito ao funcionário que cortou.
+  - **Placa maior e realista** (`CorteVisual` ganhou `grande` e `mostrarSobra`):
+    cliente vê a placa e as peças SEM a sobra; produtor vê tudo.
+  - Navegação separada em **público** (início/pedido/acompanhar) e **área interna**
+    (dono/produtor/estoque) — cada tela com um dono claro.
+- **O que foi testado:** `npx vitest run` (25 no total: 11 CRM + 14 corte) +
+  navegador: painel do dono com "A receber R$ 844" e faturamento R$ 0 (nada
+  entregue), produtividade Zé 5 / Maria 0; produtor cortando item com 1 peça a
+  mais → "Cortado — 3 peças (1 a mais no estoque)".
+- **Resultado:** ✅ 25 testes, build limpo, CRM e produtor confirmados com print.
+- **Pendências:** as funções do CRM idealmente viveriam também no back-end .NET
+  (hoje só no front); fica como evolução quando o backend hospedado entrar.
+
 ## 2026-07-17 — RotaKids: telas completas (cadastro, ida/chamada/volta, acompanhar)
 
 - **O que mudou:** o front virou o produto inteiro.

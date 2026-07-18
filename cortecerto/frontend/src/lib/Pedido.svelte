@@ -173,16 +173,18 @@
       {#if simulacao && chapaEscolhida}
         <div class="resultado">
           ✂️ Da chapa de <strong>{chapaEscolhida.tamanhoCm} cm</strong> saem
-          <strong>{simulacao.pecas} peça(s)</strong> da sua medida,
-          com sobra de <strong>{simulacao.sobra} cm</strong>
+          <strong>{simulacao.pecas} peça(s)</strong> da sua medida
           (aproveitamento de {simulacao.aproveitamento}%).
         </div>
         {#if simulacao.pecas > 0}
+          <!-- Cliente vê a placa e suas peças; a SOBRA fica só para o produtor. -->
           <CorteVisual
             tamanhoChapa={chapaEscolhida.tamanhoCm}
             cortes={Array(simulacao.pecas).fill(Number(itemAtual.medidaCorteCm))}
             sobra={simulacao.sobra}
             cor={chapaEscolhida.corHex}
+            mostrarSobra={false}
+            grande={true}
           />
         {/if}
       {:else}
