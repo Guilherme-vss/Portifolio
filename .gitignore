@@ -19,8 +19,10 @@ bin/
 obj/
 *.user
 
-# Segredos e configurações locais (nunca suba o .env!)
+# Segredos e configurações locais (nunca suba o .env nem chaves de mapa!)
 .env
+.env.local
+config.local.js
 
 # Arquivos de sistema e IDE
 .DS_Store

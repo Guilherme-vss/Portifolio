@@ -4,6 +4,31 @@ Telas, usabilidade e responsividade. Formato em [`README.md`](README.md).
 
 ---
 
+## 2026-07-18 — RotaKids: camada de trânsito TomTom (plugada, sem expor chave)
+
+- **O que mudou:** o mapa agora sobrepõe a camada de **trânsito ao vivo do TomTom**
+  quando há chave. A chave é lida de forma PREGUIÇOSA (`config.js` → função, não
+  constante) para evitar corrida com o carregamento assíncrono do config.
+  - Fontes da chave, nesta ordem: `window.__TOMTOM_KEY__` (de
+    `public/config.local.js`, **gitignorado**) ou `VITE_TOMTOM_KEY` (`.env.local`,
+    também gitignorado). A chave real NUNCA entra no código nem no Git.
+  - `index.html` carrega `config.local.js` dinamicamente (onerror silencioso →
+    sem 404 no console quando não há chave).
+  - `.gitignore`: `+.env.local`, `+config.local.js`.
+  - Exemplo comentado em `public/config.local.js.exemplo` com o passo de
+    **restrição por domínio** (a real proteção de chave de mapa).
+- **O que foi testado:** build com chave FICTÍCIA → o DOM do mapa mostrou **15
+  telhas `api.tomtom.com/traffic/map/4/tile/flow/relative0/...`** carregando junto
+  com as 15 do OSM (integração cabeada; telhas brancas porque a chave é falsa).
+  Depois, build LIMPO sem chave → **0 telhas TomTom, 16 do OSM, mapa funcionando**
+  (degradação graciosa). Confirmado que o build limpo não contém `config.local.js`.
+- **Resultado:** ✅ integração pronta e verificada nos dois cenários; nenhuma
+  chave no repositório.
+- **Pendências:** o Guilherme cria `public/config.local.js` (a partir do
+  `.exemplo`) com a chave dele e restringe por domínio (localhost +
+  guilherme-vss.github.io). Depois disso, publico o build do rotakids no gh-pages
+  dele injetando o config só no deploy — a chave nunca passa pelo repo master.
+
 ## 2026-07-17 — Portfólio: olhar de recrutador
 
 - **O que mudou (avaliado pelas 3 frentes, foco recrutador):**
