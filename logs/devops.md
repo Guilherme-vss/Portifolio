@@ -21,6 +21,32 @@ Docker, CI/CD, deploy e publicação. Formato em [`README.md`](README.md).
   as demos. **Atenção:** a URL do Pages diferencia maiúsculas (`/Portifolio/`,
   não `/portifolio/`) — um 404 no meu teste veio disso, não do deploy.
 
+## 2026-07-18 — RotaKids: preparado para deploy no Render
+
+- **O que mudou:** o backend ficou deploy-ready no Render (usuário já tem conta):
+  - `render.yaml` (Blueprint): cria web service Node + PostgreSQL free e injeta
+    a `DATABASE_URL` sozinho; `JWT_SECRET` via `generateValue` (nunca versionado).
+  - `db.ts`: SSL automático quando a URL é do Render; `inicializarEsquema()`
+    roda o `init.sql` no boot (no Render não há entrypoint do Postgres).
+    `index.ts` sobe o servidor só após o banco estar pronto (falha alto se não).
+  - `Dockerfile`: passou a copiar `db/` (o boot lê o init.sql).
+  - CORS restrito aos domínios conhecidos (guilherme-vss.github.io + localhost),
+    não "*" — a API lida com dados de crianças.
+  - Front: `api.js` só usa o backend real quando há `window.__API_URL__` ou
+    `?api=` na URL; senão mantém o motor local. **Decisão (3 frentes):** demo
+    padrão fica instantânea (Render free hiberna ~50s); o backend é para mostrar
+    o rastreamento ao vivo entre dispositivos quando quiser.
+  - `README-DEPLOY.md`: passo a passo do TomTom e do Render + tabela de segredos.
+- **O que foi testado:** `npm test` (87, +2 de boot com pg-mem rodando o init.sql;
+  idempotência verificada por checagem estática do IF NOT EXISTS — pg-mem não
+  simula bem o re-run, mas o Postgres real honra); builds back e front limpos;
+  smoke test no navegador (motor local segue como padrão, sem erro no console).
+- **Resultado:** ✅ 87 testes, deploy-ready. O deploy em si depende do login do
+  Guilherme no Render (não consigo fazer por ele).
+- **Pendências:** Guilherme roda o Blueprint no Render e me passa a URL; aí ligo
+  o front (`__API_URL__`) e publico. `render.yaml` NÃO roda .NET/Java — é só do
+  RotaKids; os outros seguem com motor local por ora.
+
 ## 2026-07-16 — Início do registro por área
 
 - **O que mudou:** adoção do [REGRAS.md](../REGRAS.md).
