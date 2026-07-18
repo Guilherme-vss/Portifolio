@@ -4,6 +4,34 @@ Telas, usabilidade e responsividade. Formato em [`README.md`](README.md).
 
 ---
 
+## 2026-07-17 — RotaKids: telas completas (cadastro, ida/chamada/volta, acompanhar)
+
+- **O que mudou:** o front virou o produto inteiro.
+  - **Motor local** (`motor-local.js`) IMPORTA o domínio do servidor
+    (`../../src/domain/*`) em vez de reescrever — a máquina de estados roda a
+    MESMA classe nos dois lados. Vite liberado para ler fora de `frontend/`.
+  - **Cadastro do motorista em 3 passos** (Você → Habilitação → Sua van) e do
+    aluno completo, com validação **campo a campo** (componente `Campo.jsx`):
+    o erro aparece embaixo do campo errado, não numa faixa genérica.
+  - **Painel do motorista**: uma AÇÃO GRANDE por vez (o tio está dirigindo) —
+    ida com "Peguei fulano", chamada na escola com trava até completar, volta
+    com "Entreguei em casa", encerramento.
+  - **Painel do pai**: acompanhar com frase em português primeiro, cartão do
+    motorista com botão de ligar, linha do tempo (log de eventos) e mapa.
+    Atualiza sozinho a cada 15s.
+  - Login com escolha de perfil (cada um tem cadastro diferente).
+- **O que foi testado:** `npm test` (15) + `npm run build` + **fluxo completo no
+  navegador**: iniciar dia → pegar Ana e Bruno (Caio faltou, ficou fora) → chegar
+  na escola → chamada (Ana volta, Bruno o pai buscou) → botão travado até a
+  chamada fechar → volta só com Ana → entregar → "Dia concluído". E validação:
+  CPF 111.111.111-11 rejeitado com "esse CPF não existe", celular/email/nome
+  com erro embaixo do campo.
+- **Resultado:** ✅ 15 testes, build limpo, fluxo ponta a ponta confirmado com
+  print. Rota pelas ruas (OSRM) e alternativas ("⚡ Mais rápida · 15 min") OK.
+- **Pendências:** camada de trânsito no mapa (comentário `🔌` já no `MapaVan.jsx`
+  esperando a chave). Rastreamento ao vivo real depende do backend hospedado —
+  na versão web a van "anda" para a última parada, o que é honesto e declarado.
+
 ## 2026-07-16 — Início do registro por área
 
 - **O que mudou:** adoção do [REGRAS.md](../REGRAS.md).
