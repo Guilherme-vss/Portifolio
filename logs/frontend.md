@@ -4,6 +4,32 @@ Telas, usabilidade e responsividade. Formato em [`README.md`](README.md).
 
 ---
 
+## 2026-07-17 — MetaGrana: menu de categorias + busca multi-fonte
+
+- **O que mudou:**
+  - `categorias.js` — árvore carro>marca>modelo, moto, imóvel>tipo, PC, game,
+    celular, eletro. As folhas viram o termo de busca (imóvel prefixa o tipo).
+  - `fontes.py` (back) + espelho no motor local — busca MULTI-FONTE: preço real
+    do Mercado Livre (API pública, link direto ao anúncio) + links de busca
+    profunda das outras lojas (Amazon/Magalu/Americanas/Casas Bahia/OLX),
+    já ordenados por menor preço. Imóvel troca para portais (VivaReal/ZAP/OLX).
+  - `Buscar.vue` — menu de 3 níveis com breadcrumb; cards de oferta com a FONTE
+    embaixo e link que abre DIRETO no produto. Abas separam "Meu dinheiro" de
+    "Caçar preços".
+  - `Promocoes.vue` — filtro por categoria (Tudo/Eletrônicos/Games/Casa).
+- **Decisão honesta (regra 1):** só o Mercado Livre tem API pública sem chave;
+  as demais exigem parceria de afiliado. Em vez de fingir preço, cada loja vira
+  um link de busca profunda ao produto — o usuário compara em 1 clique e vê a
+  fonte. Documentado no topo do `fontes.py`.
+- **O que foi testado:** pytest (45, +6 de fontes) + vitest (14, +7 de categorias)
+  + navegador: carro>Honda>Civic com link Amazon `?k=Civic&s=price-asc-rank`
+  (direto, menor preço); imóvel>Apartamento>2 dormitórios usando OLX Imóveis/
+  VivaReal/ZAP; filtro de promoções na tela.
+- **Resultado:** ✅ 45 back + 14 front, build limpo, fluxos confirmados com print.
+- **Pendências:** preço real hoje só do ML; as outras lojas são link (limite dos
+  termos de uso delas, não do código). Se um dia houver chave de afiliado, dá
+  para trazer preço real de mais lojas sem mudar a tela.
+
 ## 2026-07-17 — CorteCerto: CRM do dono + tela do produtor + placa grande
 
 - **O que mudou:**

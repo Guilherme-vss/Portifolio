@@ -99,6 +99,65 @@ async function promocoesAoVivo() {
   return achadas.sort((a, b) => b.desconto - a.desconto).slice(0, 12);
 }
 
+// Links de busca profunda (espelha o LOJAS do fontes.py).
+const LOJAS = {
+  Amazon: (t) => `https://www.amazon.com.br/s?k=${t}&s=price-asc-rank`,
+  Magalu: (t) => `https://www.magazineluiza.com.br/busca/${t}/?ordenacao=menor-preco`,
+  Americanas: (t) => `https://www.americanas.com.br/busca/${t}?sortBy=lowerPrice`,
+  "Casas Bahia": (t) => `https://www.casasbahia.com.br/${t}/b?ordenacao=menorPreco`,
+  OLX: (t) => `https://www.olx.com.br/brasil?q=${t}&sf=1`,
+};
+const PORTAIS_IMOVEL = {
+  "OLX Imóveis": (t) => `https://www.olx.com.br/imoveis?q=${t}`,
+  VivaReal: (t) => `https://www.vivareal.com.br/venda/?q=${t}`,
+  "ZAP Imóveis": (t) => `https://www.zapimoveis.com.br/venda/?q=${t}`,
+};
+
+async function buscarMultifonte(termo, categoria) {
+  const termoUrl = encodeURIComponent(termo).replace(/%20/g, "+");
+  let comPreco = [];
+  let aviso = null;
+
+  // Preço real do Mercado Livre (o navegador consegue chamar a API pública).
+  try {
+    const url = `https://api.mercadolibre.com/sites/MLB/search?q=${encodeURIComponent(termo)}&limit=6&sort=price_asc`;
+    const r = await fetch(url);
+    if (r.ok) {
+      const dados = await r.json();
+      comPreco = (dados.results || [])
+        .filter((i) => i.price != null)
+        .map((i) => ({
+          titulo: i.title,
+          preco: i.price,
+          fonte: "Mercado Livre",
+          link: i.permalink,
+          condicao: i.condition === "new" ? "novo" : "usado",
+          tipo: "produto",
+        }))
+        .sort((a, b) => a.preco - b.preco);
+    }
+  } catch {
+    aviso = "O Mercado Livre não respondeu agora — veja as outras lojas abaixo.";
+  }
+
+  const lojas = categoria === "imovel" ? PORTAIS_IMOVEL : LOJAS;
+  const outrasLojas = Object.entries(lojas).map(([fonte, montar]) => ({
+    titulo: `Ver ofertas de "${termo}" na ${fonte}`,
+    preco: null,
+    fonte,
+    link: montar(termoUrl),
+    tipo: "busca",
+  }));
+
+  return {
+    termo,
+    com_preco: comPreco,
+    outras_lojas: outrasLojas,
+    menor_preco: comPreco[0] || null,
+    aviso,
+  };
+}
+
 /* ---------- Roteador ---------- */
 
 export async function motorLocal(caminho, metodo = "GET", corpo = null) {
@@ -175,6 +234,14 @@ export async function motorLocal(caminho, metodo = "GET", corpo = null) {
       /* CORS ou rede: usa a vitrine fixa */
     }
     return promocoesFixas;
+  }
+
+  /* ----- busca multi-fonte (mesma lógica do fontes.py) ----- */
+  if (caminho.startsWith("/buscar")) {
+    const params = new URLSearchParams(caminho.split("?")[1] || "");
+    const termo = params.get("termo") || "";
+    const categoria = params.get("categoria");
+    return buscarMultifonte(termo, categoria);
   }
 
   if (caminho.startsWith("/dicas")) {

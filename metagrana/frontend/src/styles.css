@@ -2,6 +2,90 @@
    MetaGrana — tema verde (a cor do dinheiro no bolso 💰)
    ============================================================ */
 
+/* ---------- Abas ---------- */
+.abas {
+  max-width: 1000px;
+  margin: 1rem auto 0;
+  padding: 0 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+.abas button {
+  flex: 1;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 12px 12px 0 0;
+  background: transparent;
+  color: var(--cinza, #64748b);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.abas button.ativa { background: var(--card); color: var(--verde-700); box-shadow: 0 -2px 8px rgba(6,78,59,0.06); }
+
+/* ---------- Menu de categorias (caçar preços) ---------- */
+.trilha { display: flex; align-items: center; gap: 0.8rem; margin: 0.5rem 0 1rem; font-size: 0.9rem; flex-wrap: wrap; }
+.trilha .link { background: none; color: var(--verde-700); text-decoration: underline; padding: 0; margin: 0; font-weight: 600; cursor: pointer; }
+
+.grade-categorias {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.7rem;
+}
+.categoria-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+  padding: 1rem 0.5rem; border: 1.5px solid var(--borda); border-radius: 14px;
+  background: var(--card); color: var(--texto); font-weight: 700; font-size: 0.85rem; cursor: pointer;
+  transition: transform 0.1s, border-color 0.15s;
+}
+.categoria-btn:hover { transform: translateY(-3px); border-color: var(--verde-600); }
+.categoria-icone { font-size: 2rem; }
+
+.grade-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.chip {
+  padding: 0.55rem 1rem; border: 1.5px solid var(--borda); border-radius: 999px;
+  background: var(--verde-50); color: var(--verde-900); font-weight: 600; font-size: 0.88rem; cursor: pointer;
+}
+.chip:hover { border-color: var(--verde-600); }
+.chip.ativo { background: var(--verde-600); color: #fff; }
+
+.busca-livre { display: flex; gap: 0.5rem; margin-top: 1rem; }
+.busca-livre input { flex: 1; }
+
+/* ---------- Cards de oferta ---------- */
+.ofertas-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+.oferta-card {
+  position: relative; display: flex; flex-direction: column; gap: 0.35rem;
+  border: 1.5px solid var(--borda); border-radius: 12px; padding: 1rem;
+  text-decoration: none; color: var(--texto); transition: transform 0.12s, border-color 0.15s;
+}
+.oferta-card:hover { transform: translateY(-3px); border-color: var(--verde-600); }
+.oferta-card.melhor { border-color: var(--verde-600); border-width: 2px; }
+.oferta-badge { position: absolute; top: -10px; left: 12px; background: var(--verde-600); color: #fff; font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.6rem; border-radius: 999px; }
+.oferta-preco { font-size: 1.35rem; color: var(--verde-700); }
+.oferta-titulo { font-size: 0.85rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.oferta-rodape { display: flex; justify-content: space-between; align-items: center; margin-top: 0.3rem; font-size: 0.78rem; }
+.oferta-fonte { font-weight: 700; color: var(--verde-900); }
+.oferta-cond { color: var(--cinza, #64748b); }
+
+.section-lojas { margin-top: 1.4rem; }
+.lojas-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.7rem; margin-top: 0.5rem; }
+.loja-card {
+  display: flex; flex-direction: column; gap: 0.2rem; padding: 0.8rem 1rem;
+  border: 1.5px solid var(--borda); border-radius: 12px; text-decoration: none; color: var(--texto);
+  transition: border-color 0.15s;
+}
+.loja-card:hover { border-color: var(--dourado); }
+.loja-card span { font-size: 0.8rem; color: var(--dourado); font-weight: 600; }
+
+/* ---------- Filtro de promoções ---------- */
+.filtro-promo { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.6rem 0; }
+.filtro-promo button {
+  padding: 0.4rem 0.9rem; border-radius: 999px; border: 1.5px solid var(--borda);
+  background: var(--card); color: var(--cinza, #64748b); font-weight: 600; font-size: 0.83rem; cursor: pointer;
+}
+.filtro-promo button.ativo { background: var(--verde-600); color: #fff; border-color: var(--verde-600); }
+
 :root {
   --verde-900: #064e3b;
   --verde-700: #047857;

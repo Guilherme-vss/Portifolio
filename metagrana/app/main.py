@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 
 from . import db
 from .services import cotacoes as servico_cotacoes
-from .services import financas, ia, mercadolivre
+from .services import financas, fontes, ia, mercadolivre
 
 app = FastAPI(title="MetaGrana", version="1.0.0")
 
@@ -182,6 +182,20 @@ async def buscar_precos(meta_id: str):
 async def promocoes():
     """As melhores promoções do dia no Mercado Livre (itens com desconto real)."""
     return await mercadolivre.buscar_promocoes()
+
+
+# ---------- Busca multi-fonte (preço + link direto ao produto) ----------
+
+@app.get("/api/buscar")
+async def buscar(termo: str, categoria: str | None = None):
+    """
+    Caça o produto em várias fontes: preço real do Mercado Livre + links de
+    busca profunda nas outras lojas (cada card diz de onde é, e o clique vai
+    DIRETO ao produto). `categoria` ajusta as lojas (imóvel usa portais).
+    """
+    if not termo or not termo.strip():
+        raise HTTPException(400, "Informe o que você quer buscar")
+    return await fontes.buscar_multifonte(termo.strip(), categoria)
 
 
 # ---------- Dicas (IA ou regras) ----------
