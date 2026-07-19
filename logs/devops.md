@@ -21,6 +21,32 @@ Docker, CI/CD, deploy e publicação. Formato em [`README.md`](README.md).
   as demos. **Atenção:** a URL do Pages diferencia maiúsculas (`/Portifolio/`,
   não `/portifolio/`) — um 404 no meu teste veio disso, não do deploy.
 
+## 2026-07-18 — RotaKids: trânsito TomTom publicado ao vivo + fix do Render
+
+- **Segurança:** o Guilherme colou a chave real no `config.local.js.exemplo`
+  (que NÃO é gitignorado). Verifiquei com `git log -S`: a chave **não** entrou em
+  nenhum commit (estava só na árvore de trabalho). Movi para o `config.local.js`
+  correto (gitignorado, confirmado por `git check-ignore`) e restaurei o `.exemplo`.
+- **Fix do Render (comprovado):** o 1º deploy falhou porque o `render.yaml` tinha
+  `NODE_ENV=production` + `npm install` puro → o npm pulava as devDependencies e o
+  `typescript`/`tsc` sumia no build. Simulei o ambiente do Render numa pasta
+  isolada: sem `--include=dev` o typescript ficava ausente; com a flag, presente e
+  `npm run build` gerou `dist/index.js`. Corrigido para `npm install --include=dev`.
+  Commit `b85cd57` — o Guilherme refaz o Manual Deploy.
+- **Trânsito ao vivo:** build do rotakids feito COM o `config.local.js` (chave) e
+  publicado só no branch **gh-pages do repo rotakids** — a chave entra no site
+  servido, nunca no código-fonte (master). É domain-restricted a
+  guilherme-vss.github.io, então mesmo pública no build só funciona lá.
+- **O que foi testado:** build com a chave → `dist/config.local.js` presente;
+  deploy no gh-pages; **verificação no site AO VIVO** (guilherme-vss.github.io/
+  rotakids/): 12 telhas `api.tomtom.com/traffic/...` com `naturalWidth>0`
+  (carregadas de verdade, 0 quebradas) — a chave domain-restricted é aceita.
+  Confirmado visualmente: ruas verde/amarelo/vermelho sobre o mapa.
+- **Resultado:** ✅ chave segura, Render corrigido, **trânsito ao vivo publicado
+  e verificado**.
+- **Pendências:** Guilherme refaz o deploy do Render e passa a URL (aí ligo o
+  `__API_URL__` e publico o rastreamento ao vivo).
+
 ## 2026-07-18 — RotaKids: preparado para deploy no Render
 
 - **O que mudou:** o backend ficou deploy-ready no Render (usuário já tem conta):
